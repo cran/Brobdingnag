@@ -11,8 +11,7 @@ setClass("brob",
 ".Brob.valid" <- function(object){
   len <- length(object@positive)
   if(len != length(object@x)){
-    warning("length mismatch")
-    return(FALSE)
+    return("length mismatch")
   } else {
     return(TRUE)
   }
@@ -268,13 +267,12 @@ setMethod("Arith", signature(e1 = "brob", e2="brob"), .Brob.arith)
          "==" =  .Brob.equal(e1,e2),
          "!=" = !.Brob.equal(e1,e2),
          ">"  =  .Brob.greater(e1,e2),
-         "<"  = !.Brob.greater(e1,e2),
-         ">=" =  .Brob.greater(e1,e2) | .Brob.equal(e1,e2),
-         "<=" = !.Brob.greater(e1,e2) | .Brob.equal(e1,e2),
+         "<"  = !.Brob.greater(e1,e2) & !.Brob.equal(e1,e2),
+         ">=" =  .Brob.greater(e1,e2) |  .Brob.equal(e1,e2),
+         "<=" = !.Brob.greater(e1,e2) |  .Brob.equal(e1,e2),
          stop(paste(.Generic, "not supported for Brobdingnagian numbers"))
          )
 }
-
 
 setMethod("Compare", signature(e1="brob", e2="ANY" ), .Brob.compare)
 setMethod("Compare", signature(e1="ANY" , e2="brob"), .Brob.compare)

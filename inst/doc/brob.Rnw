@@ -36,14 +36,15 @@ a package having a large number of object classes that have a
 complicated hierarchical structure, or a complicated set of methods
 that interact with the object classes in a complicated manner.
 
-In the package, {\tt glub} objects are treated in {\tt glub.R} which
-appropriately generalizes all the {\tt brob} functionality.
+In the package, brobs are dealt with in {\tt brob.R}, and glubs are
+treated in {\tt glub.R} which appropriately generalizes all the {\tt
+brob} functionality.
 
 This document could not have been prepared (and should not be read)
 without consulting the following resources:
 \begin{itemize}
 \item John M. Chambers (1998), {\it Programming with Data}.  New York: Springer,
-     ISBN 0-387-98503-4 (The Green book).
+     ISBN 0-387-98503-4 (The Green Book).
 \item W. N. Venables and B. D. Ripley (2000), {\it S Programming}.  Springer,
      ISBN 0-387-98966-8.
 \item John Chambers (2006).  {\tt How S4 methods work} (available on CRAN).
@@ -52,13 +53,13 @@ without consulting the following resources:
 \subsection{Overview}
 
 
-The idea of {\tt Brobdingnag} package is stunningly simple: the IEEE
+The idea of {\tt Brobdingnag} package is simple: the IEEE
 representation for floating point numbers cannot represent numbers
-larger than about~$1.8\times 10^{308}$.  The package represents a number
-by the natural logarithm of its magnitude, and also stores a Boolean
-value indicating its sign.  Objects so stored have class {\tt brob};
-complex numbers may be similarly represented and have class {\tt
-glub}.
+larger than about~$1.8\times 10^{308}$.  The package represents a
+number by the natural logarithm of its magnitude, and also stores a
+Boolean value indicating its sign.  Objects so stored have class {\tt
+brob}; complex numbers may be similarly represented and have class
+{\tt glub}.
 
 With this scheme, multiplication is easy but addition is hard.  The
 basic identity is:
@@ -84,8 +85,8 @@ accuracy is pretty poor.
 
 \section{Class definition}
 
-OK, let's get going.   The first thing we need to do is to define the
-class.  This uses the {\tt setClass()} function:
+The first thing we need to do is to define the {\tt brob} class.  This
+uses the {\tt setClass()} function:
 
 <<setClass,print=FALSE>>=
 <<results=hide>>=
@@ -106,13 +107,13 @@ function, one needs a virtual class that contains class brob and glub.
 To understand virtual classes, see section~\ref{logicSection}.
 
 The second call to {\tt setClass()} is more germane.  Let's take this
-apart, argument by argument.  The first argument,
-{\tt representation}, specifies ``the slots that the new class
-should have and/or other classes that this class extends.  Usually a
-call to the `representation' function''.  The helppage for
-{\tt representation} gives a few further details.  Thus this argument
-specifies two `slots': one for the value and one for the sign.  These
-are specified to be numeric and logical (not Boolean) respectively.
+apart, argument by argument.  The first argument, {\tt
+representation}, specifies ``the slots that the new class should have
+and/or other classes that this class extends.  Usually a call to the
+`representation' function''.  The helppage for {\tt representation}
+gives a few further details.  Thus this argument specifies two
+`slots': one for the value and one for the sign.  These are specified
+to be numeric and logical (NB: not Boolean) respectively.
 
 The second argument, {\tt prototype}, specifies default data for the
 slots.  This kicks in when defining a zero-length brob; an example
@@ -123,7 +124,7 @@ The third argument, {\tt contains}, tells R that class {\tt swift}
 We will need this later when we start to deal with {\tt glub}s, which
 are also a subclass of {\tt swift}.
 
-OK, let's use it:
+Let's use it:
 
 <<new>>=
 new("brob",x=1:10,positive=rep(TRUE,10))
@@ -135,6 +136,7 @@ Notes:
   of class brob.  So, any object of class brob {\em must} have been
   created with function {\tt new()}.  This is part of what the
   ``formal'' tag for S4 means\footnote{Compare S3, in which I can say
+
   {\tt a <- 1:10; class(a) <- "lilliput"}}.
 \item Function {\tt new()} requires its arguments to be named, and no
   partial argument matching is performed.
@@ -155,9 +157,9 @@ following code:
 new("brob",x=1:10,positive=c(TRUE,FALSE,FALSE))
 @ 
 
+\noindent
 will not return an error, but is not acceptable because the arguments
 are different lengths (and will not recycle neatly).
-
 
 So, we define a validity method:
 
@@ -165,22 +167,27 @@ So, we define a validity method:
 .Brob.valid <- function(object){
   len <- length(object@positive)
   if(len != length(object@x)){
-    warning("length mismatch")
-    return(FALSE)
+    return("length mismatch")
   } else {
     return(TRUE)
   }
 }
 @ 
 
+Advice on the form of the validity-testing function---here {\tt
+.Brob.valid()}---is given in the help page for {\tt setValidity}:
+``The method should be a function of one object that returns `TRUE' or
+a description of the non-validity''.  Examples are given in section
+7.1.6 of the Green Book.
+
 In this package, I define a whole bunch of functions whose name starts
 with {\tt .Brob.}; these are internal and not intended for the user.
 They are also not documented.
 
-OK, so now we have a function, {\tt .Brob.valid()}, that checks
-whether its argument has slots of the same length.  We need to tell R
-that this function should be invoked every time a {\tt brob} is
-created.  Function {\tt setValidity()} does this:
+So now we have a function, {\tt .Brob.valid()}, that checks whether
+its argument has slots of the same length.  We need to tell R that
+this function should be invoked every time a {\tt brob} is created.
+Function {\tt setValidity()} does this:
 
 <<call_setValidity>>=
 setValidity("brob", .Brob.valid)
@@ -190,29 +197,29 @@ Thus, from now on [ie after the above call to {\tt setValidity()}],
 when calling {\tt new("brob", ...)} the two arguments {\tt x} and {\tt
 positive} must be the same length: recycling is not carried out.
 
-
 Functions like {\tt .Brob.valid()} that are user-unfriendly all have
-names beginning with {\tt .Brob}.  These functions are there to halp
+names beginning with {\tt .Brob}.  These functions are there to help
 the organization of the package and are not intended to be used by the
 end-user.
 
 Clever, user-friendly operations such as recycling are carried out in
 the more user-friendly functions such as {\tt as.brob()}.
 
-OK, just to check, let's call {\tt new()} with arguments of differing lengths:
+Just to check, let's call {\tt new()} with arguments of differing
+lengths:
 
 <<try_new,print=TRUE>>=
 try(new("brob",x=1:10,positive=TRUE))
 @ 
 
-So {\tt new()} throws a wobbly (the warning message issued by {\tt
-.Brob.valid()} is printed in a session but does not appear here)
-because the {\tt positive} argument had length~1 and the {\tt x} was
-length~10; and the validity method {\tt .Brob.valid()} requires both
-arguments to be the same length.
+So {\tt new()} reports the error message in function {\tt
+.Brob.valid()} because the {\tt positive} argument had length~1 and
+the {\tt x} was length~10; and the validity method {\tt .Brob.valid()}
+requires both arguments to be the same length.
 
-So that works, but isn't exactly user-friendly.  This is remedied in
-the next section.
+So now {\tt new()} works, but isn't exactly user-friendly: often one
+would want the above call to recycle the second argument to length 10
+to match the first.  This deficiency is remedied in the next section.
 
 \section{Basic user-friendly functions to create brobs}
 
@@ -231,9 +238,10 @@ brob()}:
 }
 @
 
-Thus {\tt brob(x)} will return $e^x$.  Function {\tt brob()} does
-helpful things like assuming the user desires positive numbers; it
-also carries out recycling:
+Thus {\tt brob(x)} will return a number formally equal to~$e^x$.
+Function {\tt brob()} does helpful things like assuming the user
+desires positive numbers; it also carries out recycling:
+
 <<call_brob_recycling>>=
 brob(1:10,FALSE)
 @ 
@@ -245,22 +253,36 @@ encouraged to use function {\tt as.brob()} instead.
 
 \section{Testing for brobs: an {\tt is.brob()} function}
 
-The next thing we need is an {\tt is.brob()} function:
+Function {\tt is()} will test for an object being a brob:
+
+<<use.function.is>>=
+is(brob(1:5),"brob")
+@ 
+
+(see {\tt help(is)} for more details) but a small package like this,
+with only brobs and glubs to consider, could benefit from an S3-style
+function {\tt is.brob()}.  This is easy to define:
 
 <<is.brob_definition>>=
 is.brob <- function(x){is(x,"brob")}
 is.glub <- function(x){is(x,"glub")}
 @ 
 
-We also define an {\tt is.glub()} function.  Note that the
-user-friendly function {\tt is.brob()} calls the user-unfriendly {\tt
-is()} function of the {\tt methods} package.
+now the user can just type {\tt is.brob(x)} to find out whether an
+object is a brob\footnote{This approach is fine for a tiny package
+like Brobdingnag, with only two or three classes.  However, in the
+context of a more complicated package such as {\tt Matrix}, which uses
+dozens of different classes in a complicated hierarchical structure,
+one might prefer to type {\tt is(x,"dpoMatrix-class")} rather than
+define a plethora of functions along the lines of {\tt
+is.dpoMatrix-class()}.}.
 
-So now we can check for objects being brobs and glubs.
+We also define an {\tt is.glub()} function similarly.  So now we can
+check for objects being brobs and glubs.
 
 \section{Coercion: an {\tt as.brob()} function}
 
-Next, some ways to coerce stuff to brob form:
+Next, some ways to coerce objects to class brob:
 
 <<as.brob_definition>>=
 "as.brob" <- function(x){
@@ -278,21 +300,31 @@ Next, some ways to coerce stuff to brob form:
 }
 @ 
 
-
-So now we can coerce stuff to brobs.  The {\em only} way to create a
-brob is to use {\tt new()}, and the {\em only} function that calls
-this is {\tt brob()}.  And {\tt as.brob()} calls this.
+So now we can coerce objects of various classes to brobs\footnote{The
+recommended way, appropriate for a complicated package such as Matrix,
+would be to execute {\tt setAs("numeric", "brob",
+.Brob.numeric\_to\_brob)} and {\tt setAs("complex", "brob",
+.Brob.complex\_to\_brob)}.  Then, if {\tt x} is numeric, {\tt
+as(x,"brob")} would return the appropriate brob via {\tt
+.Brob.numeric\_to\_brob()}; we could then make {\tt as.brob()} a
+generic with {\tt setGeneric()} and define methods for it.  Doing it
+this way would save function {\tt as.brob()} having to test for its
+argument being a brob [carried out in the first few lines of {\tt
+as.brob()}] because {\tt as()} has such a test built in, implicitly.}.
+The {\em only} way to create a brob is to use {\tt new()}, and the
+{\em only} function that calls this is {\tt brob()}.  And {\tt
+as.brob()} calls this.
 
 Note the user-friendliness of {\tt as.brob()}.  It takes numerics,
 brobs, and glubs (which give a warning).
 
-Better check it:
+Check  {\tt as.brob()}:
 
 <<as.brob_call>>=
 as.brob(1:10)
 @ 
 
-\section{Coersion: an {\tt as.numeric()} function}
+\section{Coercion: an {\tt as.numeric()} function}
 
 Now we need some methods to coerce brobs to numeric.  This is a
 two-stage process.
@@ -310,11 +342,19 @@ setAs("brob", "numeric", function(from){
 This call to {\tt setAs()} makes {\tt as(x,"numeric")} carry out the
 function passed as the third argument when given a brob. 
 
-But the user isn't supposed to type {\tt as(x,"numeric")}: the user is
-supposed to type {\tt as.numeric(x)}.  To accomplish this, we have to
-tell R that function {\tt as.numeric()} should execute {\tt
-as(x,"numeric")} when given a {\tt brob}.  This is done by calling
-function {\tt setMethod()}:
+But in this package, the user isn't supposed to type {\tt
+as(x,"numeric")}: the user is supposed to type {\tt
+as.numeric(x)}\footnote{Users can be expected to be familiar with
+functions such as {\tt as.numeric()} and {\tt as.complex()}, which is
+why the Brobdingnag package recommends this form.  However, this might
+not be appropriate for a more complicated package such as Matrix
+because, to quote Martin Maechler, ``it seems very ugly to define more
+than very few {\tt as.FOO()} methods, and very natural to work with
+{\tt as(*, "FOO")} [constructions]''.  Of course, there's nothing to
+stop a user typing {\tt as(x,"numeric")} if they wish.}.  To
+accomplish this, we have to tell R that function {\tt as.numeric()}
+should execute {\tt as(x,"numeric")} when given a {\tt brob}.  This is
+done by calling function {\tt setMethod()}:
 
 
 <<setMethodbrob,results=hide>>=
@@ -346,7 +386,8 @@ as.numeric(x)
 So that works.
 
 \section{Print methods}
-OK, now some print methods.  First, a helper function:
+Print methods are not strictly necessary, but make using the package
+much easier.  First, a helper function:
 
 
 <<print_methods>>=
@@ -371,7 +412,7 @@ And finally a call to {\tt setMethod()}:
 setMethod("show", "brob", function(object){print.brob(object)})
 @ 
 
-This two-stage methodology is recommended in Programming with Data.
+This two-stage methodology is recommended in the Venables and Ripley.
 The {\tt .Brob.print()} function does the hard work.  Example of it in
 use:
 
@@ -432,7 +473,7 @@ arguments are the same as those to {\tt  "["() %]
   signature error.  I've put in a warning if a second argument that
   might be interpreted as {\tt j} is given.
 
-OK, now a method for replacement.  This is a call to {\tt setReplaceMethod()}:
+Now a method for replacement.  This is a call to {\tt setReplaceMethod()}:
 
 
 <<setReplaceMethod>>=
@@ -460,15 +501,14 @@ setReplaceMethod("[",signature(x="brob"),
 See how the replacement function tests for the replacement value being
 a brob and acts accordingly.
 
-
 \section{Concatenation function {\tt cbrob()}}
 \label{cbrob}
 
-Right, next thing.  It is not possible to make {\tt c()} behave as
-expected for brobs\footnote{The ideas in this section are entirely due
-to John Chambers, who kindly replied to a question of mine on the
-R-devel email list} (that is, if any of its arguments are brobs, to
-coerce all its arguments to brobs and then concatenate).
+It is not possible to make {\tt c()} behave as expected for
+brobs\footnote{The ideas in this section are entirely due to John
+Chambers, who kindly replied to a question of mine on the R-devel
+email list} (that is, if any of its arguments are brobs, to coerce all
+its arguments to brobs and then concatenate).
 
 However, it is possible to define a function {\tt cbrob()} that does
 the job.  This has to be done in several stages.
@@ -520,7 +560,7 @@ work provided that they use {\tt setAs()} to make {\tt as.brob()}
 coerce correctly for lugg objects.  The method used here allows this
 to be done without any changes to the Brobdingnag package.
 
-OK, the final stage: definition of {\tt cbrob()}, a user-friendly
+The final stage is the definition of {\tt cbrob()}, a user-friendly
 wrapper for the above stuff:
 
 <<cbrob>>=
@@ -760,8 +800,8 @@ Better check it:
 \section{Comparison}
 
 
-Well this is pretty much the same as the others.
-First, some user-unfriendly helper functions:
+This is pretty much the same as the others.  First, some
+user-unfriendly helper functions:
 
 <<brob.equalandgreater>>=
 .Brob.equal <- function(e1,e2){
@@ -786,16 +826,16 @@ These are the fundamental ones.  We can now define another
 all-encompassing user-unfriendly function:
 
 <<brob.compare>>=
-.Brob.compare <- function(e1,e2){
+".Brob.compare" <- function(e1,e2){
   e1 <- as.brob(e1)
   e2 <- as.brob(e2)
   switch(.Generic,
          "==" =  .Brob.equal(e1,e2),
          "!=" = !.Brob.equal(e1,e2),
          ">"  =  .Brob.greater(e1,e2),
-         "<"  = !.Brob.greater(e1,e2),
-         ">=" =  .Brob.greater(e1,e2) | .Brob.equal(e1,e2),
-         "<=" = !.Brob.greater(e1,e2) | .Brob.equal(e1,e2),
+         "<"  = !.Brob.greater(e1,e2) & !.Brob.equal(e1,e2),
+         ">=" =  .Brob.greater(e1,e2) |  .Brob.equal(e1,e2),
+         "<=" = !.Brob.greater(e1,e2) |  .Brob.equal(e1,e2),
          stop(paste(.Generic, "not supported for Brobdingnagian numbers"))
          )
 }
@@ -824,11 +864,9 @@ So that works.
 \label{logicSection}
 
 
-(Note that the material in this section works in R-2.4.1, but not
-R-2.4.0).
+(The material in this section works in R-2.4.1, but not R-2.4.0).
 
 First a helper function:
-
 
 <<brob.logic>>=
 .Brob.logic <- function(e1,e2){
@@ -872,12 +910,10 @@ generic.  The functions are {\tt max(), min(), range(), prod()}, and
 {\tt sum()}.  The help page for (eg) {\tt max()} specifies that the
 arguments must be numeric, and brobs aren't numeric.
 
-This is done by function {\tt setGeneric()}; see the manpage.  The
-manpage discusses the {\tt useAsDefault} argument, which will stop a
-non-generic function from being used (which in this case is a Bad
+This is done by multiple calls to {\tt setGeneric()}; see the manpage.
+The manpage discusses the {\tt useAsDefault} argument, which will stop
+a non-generic function from being used (which in this case is a Bad
 Thing).
-
-OK, here goes:
 
 <<miscgenerics>>=
 <<results=hide>>=
@@ -996,12 +1032,12 @@ Better check it:
 sum(as.brob(1:100)) - 5050
 @ 
 
-Not bad.
-
+showing acceptable accuracy.
 
 \section{Examples of the package in use}
 
-OK, let's try factorials.  Stirlings approximation is~$n!\sim\sqrt{2\pi
+We can try to evaluate a factorial.
+Stirling's approximation is~$n!\sim\sqrt{2\pi
   n}\,e^{-n}n^n$:
 
 <<factorial>>=
@@ -1018,27 +1054,33 @@ stirling(as.brob(100))
 
 And are they the same?
 
-<<>>=
+<<compare.two.stirlings>>=
 as.numeric(stirling(100)/stirling(as.brob(100)))
 @
 
-\ldots pretty near.  But where IEEE flakes out, Brobs wade in:
+\ldots pretty near.  But the great advantage of Brobdingnagian numbers
+is that they can handle numbers larger than the IEEE limit:
 
-<<>>=
+<<stirling.of.1000>>=
 stirling(1000)
 stirling(as.brob(1000))
 @ 
 
+\noindent
+and this is accurate to about 12 sig figs, which is accurate enough
+for many purposes.  The number of sig figs decreases with
+progressively larger numbers, essentially because increasing amounts
+of floating point accuracy is gobbled up by storing the exponent of a
+large number, and less is left for the mantissa.
 
-And this is accurate to about 12 sig figs, which is accurate enough
-for my purposes.  The number of sig figs decreases with progressively
-larger numbers, essentially because increasing amounts of floating
-point accuracy is gobbled up by storing the exponent of a large
-number, and less is left for the mantissa.
+
+\section*{Acknowledgments}
+
+I gratefully acknowledge the help given to me by many members of the
+R-help and R-devel lists, especially Martin Maechler, Brian Ripley,
+and John Chambers.
 
 \newpage
-
-\bibliography{/Users/rksh/unix/bib/brob}
 
   \noindent
   Robin K. S. Hankin\\

@@ -8,8 +8,7 @@ setClass("glub",
   if(length(object@real) == length(object@imag)){
     return(TRUE)
   } else {
-    warning("length mismatch")
-    return(FALSE)
+    return("length mismatch")
   }
 }
 
