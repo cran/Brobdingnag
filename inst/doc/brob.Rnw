@@ -205,17 +205,21 @@ end-user.
 Clever, user-friendly operations such as recycling are carried out in
 the more user-friendly functions such as {\tt as.brob()}.
 
-Just to check, let's call {\tt new()} with arguments of differing
-lengths:
-
-<<try_new,print=TRUE>>=
-try(new("brob",x=1:10,positive=TRUE))
-@ 
-
-So {\tt new()} reports the error message in function {\tt
-.Brob.valid()} because the {\tt positive} argument had length~1 and
+If one were to call {\tt new()} with arguments of differing lengths,
+as in
+\\
+\\
+{\tt 
+new("brob",x=1:10,positive=TRUE)
+}
+\\
+\\
+then {\tt new()} would report the error message in function {\tt
+  .Brob.valid()}, because the {\tt positive} argument had length~1 and
 the {\tt x} was length~10; and the validity method {\tt .Brob.valid()}
-requires both arguments to be the same length.
+requires both arguments to be the same length\footnote{Placing the
+  above call in {\tt try()} and showing the error explicitly would
+  cause the package to fail {\tt R CMD check}.}.
 
 So now {\tt new()} works, but isn't exactly user-friendly: often one
 would want the above call to recycle the second argument to length 10

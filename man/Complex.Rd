@@ -29,16 +29,17 @@
   \code{glub}s.
 }
 \usage{
-\S4method{Re}{glub}(x)
-\S4method{Im}{glub}(x)
-\S4method{Mod}{glub}(x)
-\S4method{Conj}{glub}(x)
-\S4method{Arg}{glub}(x)
-Re(x) <- value
-Im(x) <- value
+\S4method{Re}{glub}(z)
+\S4method{Im}{glub}(z)
+\S4method{Mod}{glub}(z)
+\S4method{Conj}{glub}(z)
+\S4method{Arg}{glub}(z)
+Re(z) <- value
+Im(z) <- value
 }
 \arguments{
-  \item{x}{object of class \code{glub}}
+  \item{z}{object of class \code{glub} (or, in the case of
+    \code{Im<-()} or \code{Im(z) <- value}, class \code{brob})}
   \item{value}{object of class \code{numeric} or \code{brob}}
 }
 \value{

@@ -14,10 +14,6 @@
   Coerces an object of class \code{brob} to numeric, or an object of
   class \code{glub} to complex
 }
-\usage{
-as.numeric(x, ...)
-as.numeric(x, ...)
-}
 \arguments{
   \item{x}{Object of class \code{brob} or \code{glub}}
   \item{\dots}{Further arguments (currently ignored)}

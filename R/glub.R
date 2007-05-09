@@ -66,20 +66,20 @@ setMethod("Mod", "glub", function(z){sqrt(Re(z)*Re(z) + Im(z)*Im(z))})
 
 setMethod("Complex","glub", .Glub.complex)
 
-setGeneric("Re<-",function(x,value){standardGeneric("Re<-")})
-setGeneric("Im<-",function(x,value){standardGeneric("Im<-")})
+setGeneric("Re<-",function(z,value){standardGeneric("Re<-")})
+setGeneric("Im<-",function(z,value){standardGeneric("Im<-")})
 
-setMethod("Re<-","glub",function(x,value){
-  return(glub(real=value,imag=Im(x)))
+setMethod("Re<-","glub",function(z,value){
+  return(glub(real=value, imag=Im(z)))
 } )
 
-setMethod("Im<-","glub",function(x,value){
-  x <- as.glub(x)
-  return(glub(real=x@real,imag=value))
+setMethod("Im<-","glub",function(z,value){
+  z <- as.glub(z)
+  return(glub(real=z@real, imag=value))
 } )
 
-setMethod("Im<-","brob",function(x,value){
-  return(glub(real=x,imag=value))
+setMethod("Im<-","brob",function(z,value){
+  return(glub(real=z, imag=value))
 } )
 
 "as.glub" <- function(x){
