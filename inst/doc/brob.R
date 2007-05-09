@@ -1,3 +1,6 @@
+###################################################
+### chunk number 2: 
+###################################################
 setClass("swift",
          representation = "VIRTUAL"
          )
@@ -8,7 +11,23 @@ setClass("brob",
          contains       = "swift"
          )
 
-".Brob.valid" <- function(object){
+
+###################################################
+### chunk number 3: new
+###################################################
+new("brob",x=1:10,positive=rep(TRUE,10))
+
+
+###################################################
+### chunk number 4: new_flaky_arguments
+###################################################
+new("brob",x=1:10,positive=c(TRUE,FALSE,FALSE))
+
+
+###################################################
+### chunk number 5: validity_method
+###################################################
+.Brob.valid <- function(object){
   len <- length(object@positive)
   if(len != length(object@x)){
     return("length mismatch")
@@ -16,9 +35,17 @@ setClass("brob",
     return(TRUE)
   }
 }
+
+
+###################################################
+### chunk number 6: call_setValidity
+###################################################
 setValidity("brob", .Brob.valid)
 
 
+###################################################
+### chunk number 7: brob_definition
+###################################################
 "brob" <- function(x=double(),positive){
   if(missing(positive)){
     positive <- rep(TRUE,length(x))
@@ -29,9 +56,29 @@ setValidity("brob", .Brob.valid)
   new("brob",x=as.numeric(x),positive=positive)
 }
 
-"is.brob" <- function(x){is(x,"brob")}
-"is.glub" <- function(x){is(x,"glub")}
 
+###################################################
+### chunk number 8: call_brob_recycling
+###################################################
+brob(1:10,FALSE)
+
+
+###################################################
+### chunk number 9: use.function.is
+###################################################
+is(brob(1:5),"brob")
+
+
+###################################################
+### chunk number 10: is.brob_definition
+###################################################
+is.brob <- function(x){is(x,"brob")}
+is.glub <- function(x){is(x,"glub")}
+
+
+###################################################
+### chunk number 11: as.brob_definition
+###################################################
 "as.brob" <- function(x){
   if(is.brob(x)){
     return(x)
@@ -46,43 +93,95 @@ setValidity("brob", .Brob.valid)
   }
 }
 
+
+###################################################
+### chunk number 12: as.brob_call
+###################################################
+as.brob(1:10)
+
+
+###################################################
+### chunk number 14: 
+###################################################
 setAs("brob", "numeric", function(from){
   out <- exp(from@x)
   out[!from@positive] <- -out[!from@positive]
   return(out)
 } )
 
+
+###################################################
+### chunk number 15: setMethodbrob
+###################################################
 setMethod("as.numeric",signature(x="brob"),function(x){as(x,"numeric")})
 
+
+###################################################
+### chunk number 16: setAsbrobcomplex
+###################################################
 setAs("brob", "complex", function(from){
   return(as.numeric(from)+ 0i)
 } )
 
 setMethod("as.complex",signature(x="brob"),function(x){as(x,"complex")})
 
-".Brob.print" <- function(x, digits=5){
+
+###################################################
+### chunk number 17: asCheck
+###################################################
+x <- as.brob(1:4)
+x
+as.numeric(x)
+
+
+###################################################
+### chunk number 18: print_methods
+###################################################
+.Brob.print <- function(x, digits=5){
      noquote( paste(c("-","+")[1+x@positive],"exp(",signif(x@x,digits),")",sep=""))
    }
-    
-"print.brob" <- function(x, ...){
+
+
+###################################################
+### chunk number 19: print.brob
+###################################################
+print.brob <- function(x, ...){
   jj <- .Brob.print(x, ...)
   print(jj)
   return(invisible(jj))
 }
 
+
+###################################################
+### chunk number 20: setmethodbrobshow
+###################################################
 setMethod("show", "brob", function(object){print.brob(object)})
 
+
+###################################################
+### chunk number 21: as.brob14
+###################################################
+as.brob(1:4)
+
+
+###################################################
+### chunk number 23: 
+###################################################
 setGeneric("getX",function(x){standardGeneric("getX")})
 setGeneric("getP",function(x){standardGeneric("getP")})
 setMethod("getX","brob",function(x){x@x})
 setMethod("getP","brob",function(x){x@positive})
+
+
+###################################################
+### chunk number 25: 
+###################################################
 setMethod("length","brob",function(x){length(x@x)})
 
-setGeneric("sign<-",function(x,value){standardGeneric("sign<-")})
-setMethod("sign<-","brob",function(x,value){
-  brob(x@x,value)
-} )
 
+###################################################
+### chunk number 27: 
+###################################################
 setMethod("[", "brob",
           function(x, i, j,  drop){
             if(!missing(j)){
@@ -91,8 +190,15 @@ setMethod("[", "brob",
             brob(x@x[i], x@positive[i])
           } )
 
+
+###################################################
+### chunk number 29: 
+###################################################
 setReplaceMethod("[",signature(x="brob"),
                  function(x,i,j,value){
+                   if(!missing(j)){
+                     warning("second argument to extractor function ignored")
+                   }
                    jj.x <- x@x
                    jj.pos <- x@positive
                    if(is.brob(value)){
@@ -105,12 +211,36 @@ setReplaceMethod("[",signature(x="brob"),
                    }
                  } )
 
+
+
+###################################################
+### chunk number 30: .Brob.cPair
+###################################################
+.Brob.cPair <- function(x,y){
+  x <- as.brob(x)
+  y <- as.brob(y)
+  brob(c(x@x,y@x),c(x@positive,y@positive))
+}
+
+
+###################################################
+### chunk number 32: 
+###################################################
 setGeneric(".cPair", function(x,y){standardGeneric(".cPair")})
+
+
+###################################################
+### chunk number 34: 
+###################################################
 setMethod(".cPair", c("brob", "brob"), function(x,y){.Brob.cPair(x,y)})
 setMethod(".cPair", c("brob", "ANY"),  function(x,y){.Brob.cPair(x,as.brob(y))})
 setMethod(".cPair", c("ANY", "brob"),  function(x,y){.Brob.cPair(as.brob(x),y)})
 setMethod(".cPair", c("ANY", "ANY"),   function(x,y){c(x,y)})
 
+
+###################################################
+### chunk number 35: cbrob
+###################################################
 "cbrob" <- function(x, ...) {
    if(nargs()<3)
       .cPair(x,...)
@@ -118,20 +248,32 @@ setMethod(".cPair", c("ANY", "ANY"),   function(x,y){c(x,y)})
       .cPair(x, Recall(...))
 }
 
-".Brob.cPair" <- function(x,y){
-  x <- as.brob(x)
-  y <- as.brob(y)
-  brob(c(x@x,y@x),c(x@positive,y@positive))
-}
 
-if(!isGeneric("log")){
-  setGeneric("log",group="Math")
-}
+###################################################
+### chunk number 36: test.cbrob
+###################################################
+a <- 1:3
+b <- as.brob(1e100)
+cbrob(a,a,b,a)
 
+
+###################################################
+### chunk number 38: 
+###################################################
 setMethod("sqrt","brob", function(x){
  brob(ifelse(x@positive,x@x/2, NaN),TRUE)
 } )
-          
+
+
+###################################################
+### chunk number 39: checklogsqrt
+###################################################
+sqrt(brob(4))
+
+
+###################################################
+### chunk number 41: 
+###################################################
 setMethod("Math", "brob",
           function(x){
             switch(.Generic,
@@ -164,15 +306,24 @@ setMethod("Math", "brob",
                      )
           } )
 
-".Brob.negative" <- function(e1){
+
+###################################################
+### chunk number 42: checktrig
+###################################################
+sin(brob(4))
+
+
+###################################################
+### chunk number 43: .brob.arithstuff
+###################################################
+.Brob.negative <- function(e1){
   brob(e1@x,!e1@positive)
 }
-
-".Brob.ds" <- function(e1,e2){   # "ds" == "different signs"
+.Brob.ds <- function(e1,e2){   # "ds" == "different signs"
   xor(e1@positive,e2@positive)
 }
 
-".Brob.add" <- function(e1,e2){
+.Brob.add <- function(e1,e2){
   e1 <- as.brob(e1)
   e2 <- as.brob(e2)
   
@@ -199,13 +350,13 @@ setMethod("Math", "brob",
   return(brob(out.x,out.pos))
 }
 
-".Brob.mult" <- function(e1,e2){
+.Brob.mult <- function(e1,e2){
   e1 <- as.brob(e1)
   e2 <- as.brob(e2)
   return(brob(e1@x + e2@x, !.Brob.ds(e1,e2)))
 }
 
-".Brob.power"<- function(e1,e2){
+.Brob.power <- function(e1,e2){
   stopifnot(is.brob(e1) | is.brob(e2))
   if(is.brob(e2)){ # e2 a brob => answer a brob (ignore signs)
     return(brob(log(e1) * brob(e2@x), TRUE))
@@ -215,8 +366,12 @@ setMethod("Math", "brob",
   }
 }
 
-".Brob.inverse" <- function(b){brob(-b@x,b@positive)}
+.Brob.inverse <- function(b){brob(-b@x,b@positive)}
 
+
+###################################################
+### chunk number 45: 
+###################################################
 setMethod("Arith",signature(e1 = "brob", e2="missing"),
           function(e1,e2){
             switch(.Generic,
@@ -227,7 +382,17 @@ setMethod("Arith",signature(e1 = "brob", e2="missing"),
                    )
           } )
 
-".Brob.arith" <- function(e1,e2){
+
+###################################################
+### chunk number 46: check_minus_5
+###################################################
+-brob(5)
+
+
+###################################################
+### chunk number 47: brob.arith
+###################################################
+.Brob.arith <- function(e1,e2){
   switch(.Generic,
          "+" = .Brob.add  (e1, e2),
          "-" = .Brob.add  (e1, .Brob.negative(as.brob(e2))),
@@ -237,16 +402,29 @@ setMethod("Arith",signature(e1 = "brob", e2="missing"),
          stop(paste("binary operator \"", .Generic, "\" not defined for Brobdingnagian numbers"))
          ) }
 
+
+###################################################
+### chunk number 48: setMethodArith
+###################################################
 setMethod("Arith", signature(e1 = "brob", e2="ANY"), .Brob.arith)
 setMethod("Arith", signature(e1 = "ANY", e2="brob"), .Brob.arith)
 setMethod("Arith", signature(e1 = "brob", e2="brob"), .Brob.arith)
 
 
-".Brob.equal" <- function(e1,e2){
+###################################################
+### chunk number 49: check_addition
+###################################################
+1e100 + as.brob(10)^100
+
+
+###################################################
+### chunk number 50: brob.equalandgreater
+###################################################
+.Brob.equal <- function(e1,e2){
   (e1@x==e2@x) & (e1@positive==e2@positive)
 }
 
-".Brob.greater" <- function(e1,e2){
+.Brob.greater <- function(e1,e2){
   jj.x <- rbind(e1@x,e2@x)
   jj.p <- rbind(e1@positive,e2@positive)
 
@@ -259,6 +437,10 @@ setMethod("Arith", signature(e1 = "brob", e2="brob"), .Brob.arith)
   return(greater)
 }
 
+
+###################################################
+### chunk number 51: brob.compare
+###################################################
 ".Brob.compare" <- function(e1,e2){
   e1 <- as.brob(e1)
   e2 <- as.brob(e2)
@@ -273,19 +455,51 @@ setMethod("Arith", signature(e1 = "brob", e2="brob"), .Brob.arith)
          )
 }
 
+
+###################################################
+### chunk number 53: 
+###################################################
 setMethod("Compare", signature(e1="brob", e2="ANY" ), .Brob.compare)
 setMethod("Compare", signature(e1="ANY" , e2="brob"), .Brob.compare)
 setMethod("Compare", signature(e1="brob", e2="brob"), .Brob.compare)
 
-".Brob.logic" <- function(e1,e2){
+
+###################################################
+### chunk number 54: check.compare
+###################################################
+as.brob(10) < as.brob(11)
+as.brob(10) <= as.brob(10)
+
+
+###################################################
+### chunk number 55: brob.logic
+###################################################
+.Brob.logic <- function(e1,e2){
   stop("No logic currently implemented for Brobdingnagian numbers")
 }
 
+
+###################################################
+### chunk number 57: 
+###################################################
 setMethod("Logic",signature(e1="swift",e2="ANY"), .Brob.logic)
 setMethod("Logic",signature(e1="ANY",e2="swift"), .Brob.logic)
 setMethod("Logic",signature(e1="swift",e2="swift"), .Brob.logic)
 
-if(!isGeneric("max")){
+
+###################################################
+### chunk number 58: logchunk
+###################################################
+if(!isGeneric("log")){
+  setGeneric("log",group="Math")
+}
+
+
+###################################################
+### chunk number 60: 
+###################################################
+if(!isGeneric("log")){
+print("asdfAF")
 setGeneric("max", function(x, ..., na.rm = FALSE)
 	{
 		standardGeneric("max")
@@ -295,9 +509,7 @@ setGeneric("max", function(x, ..., na.rm = FALSE)
 		base::max(x, ..., na.rm = na.rm)
 	},
 	group = "Summary")
-}
 
-if(!isGeneric("min")){
 setGeneric("min", function(x, ..., na.rm = FALSE)
 	{
 		standardGeneric("min")
@@ -307,9 +519,7 @@ setGeneric("min", function(x, ..., na.rm = FALSE)
 		base::min(x, ..., na.rm = na.rm)
 	},
 	group = "Summary")
-}
 
-if(!isGeneric("range")){
 setGeneric("range", function(x, ..., na.rm = FALSE)
 	{
 		standardGeneric("range")
@@ -319,9 +529,7 @@ setGeneric("range", function(x, ..., na.rm = FALSE)
 		base::range(x, ..., na.rm = na.rm)
 	},
 	group = "Summary")
-}
 
-if(!isGeneric("prod")){
 setGeneric("prod", function(x, ..., na.rm = FALSE)
 	{
 		standardGeneric("prod")
@@ -331,9 +539,7 @@ setGeneric("prod", function(x, ..., na.rm = FALSE)
 		base::prod(x, ..., na.rm = na.rm)
 	},
 	group = "Summary")
-}
 
-if(!isGeneric("sum")){
 setGeneric("sum", function(x, ..., na.rm = FALSE)
 	{
 		standardGeneric("sum")
@@ -345,7 +551,11 @@ setGeneric("sum", function(x, ..., na.rm = FALSE)
 	group = "Summary")
 }
 
-".Brob.max" <- function(x, ..., na.rm=FALSE){
+
+###################################################
+### chunk number 61: brob.maxmin
+###################################################
+.Brob.max <- function(x, ..., na.rm=FALSE){
   p <- x@positive
   val <- x@x
   if(any(p)){
@@ -356,18 +566,18 @@ setGeneric("sum", function(x, ..., na.rm = FALSE)
   }
 }
 
-".Brob.prod" <- function(x){
+.Brob.prod <- function(x){
   p <- x@positive
   val <- x@x
   return(brob(sum(val),(sum(p)%%2)==0))
 }
 
-".Brob.sum" <- function(x){
+.Brob.sum <- function(x){
   .Brob.sum.allpositive( x[x>0]) -
   .Brob.sum.allpositive(-x[x<0]) 
 }
 
-".Brob.sum.allpositive" <- function(x){
+.Brob.sum.allpositive <- function(x){
   if(length(x)<1){return(as.brob(0))}
   val <- x@x
   p <- x@positive
@@ -375,8 +585,13 @@ setGeneric("sum", function(x, ..., na.rm = FALSE)
   return(brob(mv + log1p(sum(exp(val[-which.max(val)]-mv))),TRUE))
 }
 
+
+###################################################
+### chunk number 63: 
+###################################################
 setMethod("Summary", "brob",
           function(x, ..., na.rm=FALSE){
+            browser()
             switch(.Generic,
                    max    =  .Brob.max( x, ..., na.rm=na.rm),
                    min    = -.Brob.max(-x, ..., na.rm=na.rm),
@@ -389,8 +604,29 @@ setMethod("Summary", "brob",
           )
 
 
-setMethod("plot",signature(x="brob",y="missing"),function(x, ...){plot.default(as.numeric(x), ...)})
-setMethod("plot",signature(x="brob",y="ANY" ),function(x, y, ...){plot.default(as.numeric(x), as.numeric(y), ...)})
-setMethod("plot",signature(x="ANY" ,y="brob"),function(x, y, ...){plot.default(as.numeric(x), as.numeric(y), ...)})
+###################################################
+### chunk number 64: factorial
+###################################################
+stirling <- function(x){sqrt(2*pi*x)*exp(-x)*x^x}
+
+
+###################################################
+### chunk number 65: use.stirling
+###################################################
+stirling(100)
+stirling(as.brob(100))
+
+
+###################################################
+### chunk number 66: compare.two.stirlings
+###################################################
+as.numeric(stirling(100)/stirling(as.brob(100)))
+
+
+###################################################
+### chunk number 67: stirling.of.1000
+###################################################
+stirling(1000)
+stirling(as.brob(1000))
 
 

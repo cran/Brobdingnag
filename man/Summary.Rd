@@ -9,13 +9,6 @@
 \title{Various summary statistics for brobs and glubs}
 \description{Various summary statistics for brobs and glubs
 }
-\usage{
-sum(x, ..., na.rm = FALSE)
-min(x, ..., na.rm = FALSE)
-max(x, ..., na.rm = FALSE)
-prod(x, ..., na.rm = FALSE)
-range(x, ..., na.rm = FALSE)
-}
 \arguments{
   \item{x,\dots}{Objects of class \code{brob} or, in the case of
     \code{sum()} and \code{prob()}, class \code{glub}}

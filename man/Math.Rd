@@ -33,9 +33,6 @@
 \description{
 Various elementary functions for brobs
 }
-\usage{
-log(x, base = exp(1))
-}
 \arguments{
   \item{x}{Object of class \code{brob} (or sometimes \code{glub})}
   \item{base}{In function \code{log()}, the base of the logarithm}

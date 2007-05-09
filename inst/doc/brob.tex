@@ -5,9 +5,10 @@
 \author{Robin K. S. Hankin}
 \title{A step-by-step guide to writing a simple package that uses S4 methods: a ``hello world'' example}
 %\VignetteIndexEntry{Brobdingnag: a ``hello world'' package using S4 methods}
-\SweaveOpts{print=FALSE}
+
 \usepackage{a4wide}
 
+\usepackage{/usr/local/lib/R/share/texmf/Sweave}
 \begin{document}
 \maketitle
 
@@ -88,18 +89,14 @@ accuracy is pretty poor.
 The first thing we need to do is to define the {\tt brob} class.  This
 uses the {\tt setClass()} function:
 
-<<setClass,print=FALSE>>=
-<<results=hide>>=
-setClass("swift",
-         representation = "VIRTUAL"
-         )
-
-setClass("brob",
-         representation = representation(x="numeric",positive="logical"),
-         prototype      = list(x=numeric(),positive=logical()),
-         contains       = "swift"
-         )
-@ 
+\begin{Schunk}
+\begin{Sinput}
+> setClass("swift", representation = "VIRTUAL")
+> setClass("brob", representation = representation(x = "numeric", 
++     positive = "logical"), prototype = list(x = numeric(), positive = logical()), 
++     contains = "swift")
+\end{Sinput}
+\end{Schunk}
 
 It is simpler to ignore the first call to {\tt setClass()} here; for
 reasons that will become apparent when discussing the {\tt c()}
@@ -126,9 +123,19 @@ are also a subclass of {\tt swift}.
 
 Let's use it:
 
-<<new>>=
-new("brob",x=1:10,positive=rep(TRUE,10))
-@ 
+\begin{Schunk}
+\begin{Sinput}
+> new("brob", x = 1:10, positive = rep(TRUE, 10))
+\end{Sinput}
+\begin{Soutput}
+An object of class "brob"
+Slot "x":
+ [1]  1  2  3  4  5  6  7  8  9 10
+
+Slot "positive":
+ [1] TRUE TRUE TRUE TRUE TRUE TRUE TRUE TRUE TRUE TRUE
+\end{Soutput}
+\end{Schunk}
 
 Notes:
 \begin{itemize}
@@ -153,9 +160,19 @@ Notes:
 Now, an optional step is to define a function that tests whether the
 arguments passed to {\tt new()} are acceptable.  As it stands, the
 following code:
-<<new_flaky_arguments>>=
-new("brob",x=1:10,positive=c(TRUE,FALSE,FALSE))
-@ 
+\begin{Schunk}
+\begin{Sinput}
+> new("brob", x = 1:10, positive = c(TRUE, FALSE, FALSE))
+\end{Sinput}
+\begin{Soutput}
+An object of class "brob"
+Slot "x":
+ [1]  1  2  3  4  5  6  7  8  9 10
+
+Slot "positive":
+[1]  TRUE FALSE FALSE
+\end{Soutput}
+\end{Schunk}
 
 \noindent
 will not return an error, but is not acceptable because the arguments
@@ -163,16 +180,19 @@ are different lengths (and will not recycle neatly).
 
 So, we define a validity method:
 
-<<validity_method>>=
-.Brob.valid <- function(object){
-  len <- length(object@positive)
-  if(len != length(object@x)){
-    return("length mismatch")
-  } else {
-    return(TRUE)
-  }
-}
-@ 
+\begin{Schunk}
+\begin{Sinput}
+> .Brob.valid <- function(object) {
++     len <- length(object@positive)
++     if (len != length(object@x)) {
++         return("length mismatch")
++     }
++     else {
++         return(TRUE)
++     }
++ }
+\end{Sinput}
+\end{Schunk}
 
 Advice on the form of the validity-testing function---here {\tt
 .Brob.valid()}---is given in the help page for {\tt setValidity}:
@@ -189,9 +209,19 @@ its argument has slots of the same length.  We need to tell R that
 this function should be invoked every time a {\tt brob} is created.
 Function {\tt setValidity()} does this:
 
-<<call_setValidity>>=
-setValidity("brob", .Brob.valid)
-@ 
+\begin{Schunk}
+\begin{Sinput}
+> setValidity("brob", .Brob.valid)
+\end{Sinput}
+\begin{Soutput}
+Slots:
+                        
+Name:         x positive
+Class:  numeric  logical
+
+Extends: "swift"
+\end{Soutput}
+\end{Schunk}
 
 Thus, from now on [ie after the above call to {\tt setValidity()}],
 when calling {\tt new("brob", ...)} the two arguments {\tt x} and {\tt
@@ -230,25 +260,37 @@ to match the first.  This deficiency is remedied in the next section.
 The basic, semi user-friendly function for creating brobs is {\tt
 brob()}:
 
-<<brob_definition>>=
-"brob" <- function(x=double(),positive){
-  if(missing(positive)){
-    positive <- rep(TRUE,length(x))
-  }
-  if(length(positive)==1){
-    positive <- rep(positive,length(x))
-  }
-  new("brob",x=as.numeric(x),positive=positive)
-}
-@
+\begin{Schunk}
+\begin{Sinput}
+> "brob" <- function(x = double(), positive) {
++     if (missing(positive)) {
++         positive <- rep(TRUE, length(x))
++     }
++     if (length(positive) == 1) {
++         positive <- rep(positive, length(x))
++     }
++     new("brob", x = as.numeric(x), positive = positive)
++ }
+\end{Sinput}
+\end{Schunk}
 
 Thus {\tt brob(x)} will return a number formally equal to~$e^x$.
 Function {\tt brob()} does helpful things like assuming the user
 desires positive numbers; it also carries out recycling:
 
-<<call_brob_recycling>>=
-brob(1:10,FALSE)
-@ 
+\begin{Schunk}
+\begin{Sinput}
+> brob(1:10, FALSE)
+\end{Sinput}
+\begin{Soutput}
+An object of class "brob"
+Slot "x":
+ [1]  1  2  3  4  5  6  7  8  9 10
+
+Slot "positive":
+ [1] FALSE FALSE FALSE FALSE FALSE FALSE FALSE FALSE FALSE FALSE
+\end{Soutput}
+\end{Schunk}
 
 Note that {\tt brob()} isn't exactly terribly user-friendly: it's
 confusing. {\tt brob(5)} returns a number formally equal to~$e^5$,
@@ -259,18 +301,29 @@ encouraged to use function {\tt as.brob()} instead.
 
 Function {\tt is()} will test for an object being a brob:
 
-<<use.function.is>>=
-is(brob(1:5),"brob")
-@ 
+\begin{Schunk}
+\begin{Sinput}
+> is(brob(1:5), "brob")
+\end{Sinput}
+\begin{Soutput}
+[1] TRUE
+\end{Soutput}
+\end{Schunk}
 
 (see {\tt help(is)} for more details) but a small package like this,
 with only brobs and glubs to consider, could benefit from an S3-style
 function {\tt is.brob()}.  This is easy to define:
 
-<<is.brob_definition>>=
-is.brob <- function(x){is(x,"brob")}
-is.glub <- function(x){is(x,"glub")}
-@ 
+\begin{Schunk}
+\begin{Sinput}
+> is.brob <- function(x) {
++     is(x, "brob")
++ }
+> is.glub <- function(x) {
++     is(x, "glub")
++ }
+\end{Sinput}
+\end{Schunk}
 
 now the user can just type {\tt is.brob(x)} to find out whether an
 object is a brob\footnote{This approach is fine for a tiny package
@@ -288,21 +341,26 @@ check for objects being brobs and glubs.
 
 Next, some ways to coerce objects to class brob:
 
-<<as.brob_definition>>=
-"as.brob" <- function(x){
-  if(is.brob(x)){
-    return(x)
-  } else if(is.complex(x)) {
-    warning("imaginary parts discarded")
-    return(Recall(Re(x)))
-  } else if(is.glub(x)){
-    warning("imaginary parts discarded")
-    return(Re(x))
-  } else {
-    return(brob(log(abs(x)), x>=0))
-  }
-}
-@ 
+\begin{Schunk}
+\begin{Sinput}
+> "as.brob" <- function(x) {
++     if (is.brob(x)) {
++         return(x)
++     }
++     else if (is.complex(x)) {
++         warning("imaginary parts discarded")
++         return(Recall(Re(x)))
++     }
++     else if (is.glub(x)) {
++         warning("imaginary parts discarded")
++         return(Re(x))
++     }
++     else {
++         return(brob(log(abs(x)), x >= 0))
++     }
++ }
+\end{Sinput}
+\end{Schunk}
 
 So now we can coerce objects of various classes to brobs\footnote{The
 recommended way, appropriate for a complicated package such as Matrix,
@@ -324,9 +382,20 @@ brobs, and glubs (which give a warning).
 
 Check  {\tt as.brob()}:
 
-<<as.brob_call>>=
-as.brob(1:10)
-@ 
+\begin{Schunk}
+\begin{Sinput}
+> as.brob(1:10)
+\end{Sinput}
+\begin{Soutput}
+An object of class "brob"
+Slot "x":
+ [1] 0.0000000 0.6931472 1.0986123 1.3862944 1.6094379 1.7917595 1.9459101
+ [8] 2.0794415 2.1972246 2.3025851
+
+Slot "positive":
+ [1] TRUE TRUE TRUE TRUE TRUE TRUE TRUE TRUE TRUE TRUE
+\end{Soutput}
+\end{Schunk}
 
 \section{Coercion: an {\tt as.numeric()} function}
 
@@ -334,14 +403,15 @@ Now we need some methods to coerce brobs to numeric.  This is a
 two-stage process.
 
 
-<<setAs>>=
-<<results=hide>>=
-setAs("brob", "numeric", function(from){
-  out <- exp(from@x)
-  out[!from@positive] <- -out[!from@positive]
-  return(out)
-} )
-@ 
+\begin{Schunk}
+\begin{Sinput}
+> setAs("brob", "numeric", function(from) {
++     out <- exp(from@x)
++     out[!from@positive] <- -out[!from@positive]
++     return(out)
++ })
+\end{Sinput}
+\end{Schunk}
 
 This call to {\tt setAs()} makes {\tt as(x,"numeric")} carry out the
 function passed as the third argument when given a brob. 
@@ -361,18 +431,25 @@ should execute {\tt as(x,"numeric")} when given a {\tt brob}.  This is
 done by calling function {\tt setMethod()}:
 
 
-<<setMethodbrob,results=hide>>=
-setMethod("as.numeric",signature(x="brob"),function(x){as(x,"numeric")})
-@ 
+\begin{Schunk}
+\begin{Sinput}
+> setMethod("as.numeric", signature(x = "brob"), function(x) {
++     as(x, "numeric")
++ })
+\end{Sinput}
+\end{Schunk}
 
 We similarly need to make {\tt as.complex()} work for brobs:
-<<setAsbrobcomplex,results=hide>>=
-setAs("brob", "complex", function(from){
-  return(as.numeric(from)+ 0i)
-} )
-
-setMethod("as.complex",signature(x="brob"),function(x){as(x,"complex")})
-@ 
+\begin{Schunk}
+\begin{Sinput}
+> setAs("brob", "complex", function(from) {
++     return(as.numeric(from) + (0+0i))
++ })
+> setMethod("as.complex", signature(x = "brob"), function(x) {
++     as(x, "complex")
++ })
+\end{Sinput}
+\end{Schunk}
 
 We'll need similar methods for glubs too.
 
@@ -381,11 +458,26 @@ Better check:
 
 
 
-<<asCheck>>=
-x <- as.brob(1:4)
-x
-as.numeric(x)
-@ 
+\begin{Schunk}
+\begin{Sinput}
+> x <- as.brob(1:4)
+> x
+\end{Sinput}
+\begin{Soutput}
+An object of class "brob"
+Slot "x":
+[1] 0.0000000 0.6931472 1.0986123 1.3862944
+
+Slot "positive":
+[1] TRUE TRUE TRUE TRUE
+\end{Soutput}
+\begin{Sinput}
+> as.numeric(x)
+\end{Sinput}
+\begin{Soutput}
+[1] 1 2 3 4
+\end{Soutput}
+\end{Schunk}
 
 So that works.
 
@@ -394,35 +486,49 @@ Print methods are not strictly necessary, but make using the package
 much easier.  First, a helper function:
 
 
-<<print_methods>>=
-.Brob.print <- function(x, digits=5){
-     noquote( paste(c("-","+")[1+x@positive],"exp(",signif(x@x,digits),")",sep=""))
-   }
-@ 
+\begin{Schunk}
+\begin{Sinput}
+> .Brob.print <- function(x, digits = 5) {
++     noquote(paste(c("-", "+")[1 + x@positive], "exp(", signif(x@x, 
++         digits), ")", sep = ""))
++ }
+\end{Sinput}
+\end{Schunk}
 
 Then an S3 method:
 
-<<print.brob>>=
-print.brob <- function(x, ...){
-  jj <- .Brob.print(x, ...)
-  print(jj)
-  return(invisible(jj))
-}
-@ 
+\begin{Schunk}
+\begin{Sinput}
+> print.brob <- function(x, ...) {
++     jj <- .Brob.print(x, ...)
++     print(jj)
++     return(invisible(jj))
++ }
+\end{Sinput}
+\end{Schunk}
 
 And finally a call to {\tt setMethod()}:
 
-<<setmethodbrobshow,results=hide>>=
-setMethod("show", "brob", function(object){print.brob(object)})
-@ 
+\begin{Schunk}
+\begin{Sinput}
+> setMethod("show", "brob", function(object) {
++     print.brob(object)
++ })
+\end{Sinput}
+\end{Schunk}
 
 This two-stage methodology is recommended in the Venables and Ripley.
 The {\tt .Brob.print()} function does the hard work.  Example of it in
 use:
 
-<<as.brob14>>=
-as.brob(1:4)
-@ 
+\begin{Schunk}
+\begin{Sinput}
+> as.brob(1:4)
+\end{Sinput}
+\begin{Soutput}
+[1] +exp(0)       +exp(0.69315) +exp(1.0986)  +exp(1.3863) 
+\end{Soutput}
+\end{Schunk}
 
 See how the brob object is printed out nicely, and with no special
 effort required of the user.
@@ -433,13 +539,22 @@ effort required of the user.
 To be anal retentive about things, one should define {\tt C++} style
 accessor functions as follows:
 
-<<get.n.set>>=
-<<results=hide>>=
-setGeneric("getX",function(x){standardGeneric("getX")})
-setGeneric("getP",function(x){standardGeneric("getP")})
-setMethod("getX","brob",function(x){x@x})
-setMethod("getP","brob",function(x){x@positive})
-@ 
+\begin{Schunk}
+\begin{Sinput}
+> setGeneric("getX", function(x) {
++     standardGeneric("getX")
++ })
+> setGeneric("getP", function(x) {
++     standardGeneric("getP")
++ })
+> setMethod("getX", "brob", function(x) {
++     x@x
++ })
+> setMethod("getP", "brob", function(x) {
++     x@positive
++ })
+\end{Sinput}
+\end{Schunk}
 
 but in practice I just use {\tt @} to access the slots.  These are
 just here for good form's sake.
@@ -449,10 +564,13 @@ just here for good form's sake.
 
 Now a length:
 
-<<setlength>>=
-<<results=hide>>=
-setMethod("length","brob",function(x){length(x@x)})
-@ 
+\begin{Schunk}
+\begin{Sinput}
+> setMethod("length", "brob", function(x) {
++     length(x@x)
++ })
+\end{Sinput}
+\end{Schunk}
 
 \section{Extracting elements of a vector}
 
@@ -460,16 +578,16 @@ Next thing is to define some methods for extraction.  This is done
 with {\tt setMethod()} for extraction, and {\tt setReplaceMethod()}
 for replacement.
 
-<<setmethodSquareBrace>>=
-<<results=hide>>=
-setMethod("[", "brob",
-          function(x, i, j,  drop){
-            if(!missing(j)){
-              warning("second argument to extractor function ignored")
-            }
-            brob(x@x[i], x@positive[i])
-          } )
-@ 
+\begin{Schunk}
+\begin{Sinput}
+> setMethod("[", "brob", function(x, i, j, drop) {
++     if (!missing(j)) {
++         warning("second argument to extractor function ignored")
++     }
++     brob(x@x[i], x@positive[i])
++ })
+\end{Sinput}
+\end{Schunk}
 
 See how the third argument to {\tt setMethod()} is a function whose
 arguments are the same as those to {\tt  "["() %]
@@ -480,26 +598,27 @@ arguments are the same as those to {\tt  "["() %]
 Now a method for replacement.  This is a call to {\tt setReplaceMethod()}:
 
 
-<<setReplaceMethod>>=
-<<results=hide>>=
-setReplaceMethod("[",signature(x="brob"),
-                 function(x,i,j,value){
-                   if(!missing(j)){
-                     warning("second argument to extractor function ignored")
-                   }
-                   jj.x <- x@x
-                   jj.pos <- x@positive
-                   if(is.brob(value)){
-                     jj.x[i] <- value@x
-                     jj.pos[i] <- value@positive
-                     return(brob(x=jj.x,positive=jj.pos))
-                   } else {
-                     x[i] <- as.brob(value)
-                     return(x)
-                   }
-                 } )
-
-@ 
+\begin{Schunk}
+\begin{Sinput}
+> setReplaceMethod("[", signature(x = "brob"), function(x, i, j, 
++     value) {
++     if (!missing(j)) {
++         warning("second argument to extractor function ignored")
++     }
++     jj.x <- x@x
++     jj.pos <- x@positive
++     if (is.brob(value)) {
++         jj.x[i] <- value@x
++         jj.pos[i] <- value@positive
++         return(brob(x = jj.x, positive = jj.pos))
++     }
++     else {
++         x[i] <- as.brob(value)
++         return(x)
++     }
++ })
+\end{Sinput}
+\end{Schunk}
 
 
 See how the replacement function tests for the replacement value being
@@ -521,13 +640,15 @@ First we define another user-unfriendly helper function {\tt
 .Brob.cPair()} which takes two arguments, coerces them to brobs, and
 concatenates them:
 
-<<.Brob.cPair>>=
-.Brob.cPair <- function(x,y){
-  x <- as.brob(x)
-  y <- as.brob(y)
-  brob(c(x@x,y@x),c(x@positive,y@positive))
-}
-@ 
+\begin{Schunk}
+\begin{Sinput}
+> .Brob.cPair <- function(x, y) {
++     x <- as.brob(x)
++     y <- as.brob(y)
++     brob(c(x@x, y@x), c(x@positive, y@positive))
++ }
+\end{Sinput}
+\end{Schunk}
 
 This is just {\tt c()} for the two slots separately.  The idea is that
 function {\tt .Brob.cPair()} takes two arguments; both are coerced to
@@ -536,10 +657,13 @@ brobs and it returns the concatenated vector of brobs.
 Now, we need to set up a (user-unfriendly) generic function {\tt
 .cPair()}:
 
-<<setGeneric_cbrob>>=
-<<results=hide>>=
-setGeneric(".cPair", function(x,y){standardGeneric(".cPair")})
-@ 
+\begin{Schunk}
+\begin{Sinput}
+> setGeneric(".cPair", function(x, y) {
++     standardGeneric(".cPair")
++ })
+\end{Sinput}
+\end{Schunk}
 
 Function {\tt .cPair()} is not substantive (sic): it exists purely in
 order to be a generic function that dispatches to {\tt .Brob.cPair()}.
@@ -547,13 +671,22 @@ order to be a generic function that dispatches to {\tt .Brob.cPair()}.
 Now we use {\tt setMethod()} to organize the dispatch:
 
 
-<<setMethod.Cpair>>=
-<<results=hide>>=
-setMethod(".cPair", c("brob", "brob"), function(x,y){.Brob.cPair(x,y)})
-setMethod(".cPair", c("brob", "ANY"),  function(x,y){.Brob.cPair(x,as.brob(y))})
-setMethod(".cPair", c("ANY", "brob"),  function(x,y){.Brob.cPair(as.brob(x),y)})
-setMethod(".cPair", c("ANY", "ANY"),   function(x,y){c(x,y)})
-@ 
+\begin{Schunk}
+\begin{Sinput}
+> setMethod(".cPair", c("brob", "brob"), function(x, y) {
++     .Brob.cPair(x, y)
++ })
+> setMethod(".cPair", c("brob", "ANY"), function(x, y) {
++     .Brob.cPair(x, as.brob(y))
++ })
+> setMethod(".cPair", c("ANY", "brob"), function(x, y) {
++     .Brob.cPair(as.brob(x), y)
++ })
+> setMethod(".cPair", c("ANY", "ANY"), function(x, y) {
++     c(x, y)
++ })
+\end{Sinput}
+\end{Schunk}
 
 
 The four calls are necessary for the four different signatures that
@@ -567,14 +700,15 @@ to be done without any changes to the Brobdingnag package.
 The final stage is the definition of {\tt cbrob()}, a user-friendly
 wrapper for the above stuff:
 
-<<cbrob>>=
-"cbrob" <- function(x, ...) {
-   if(nargs()<3)
-      .cPair(x,...)
-    else
-      .cPair(x, Recall(...))
-}
-@ 
+\begin{Schunk}
+\begin{Sinput}
+> "cbrob" <- function(x, ...) {
++     if (nargs() < 3) 
++         .cPair(x, ...)
++     else .cPair(x, Recall(...))
++ }
+\end{Sinput}
+\end{Schunk}
 
 
 Note the recursive definition.  If {\tt cbrob()} is called with {\em
@@ -584,11 +718,17 @@ Which is what we want (although glubs will require more work).
 
 
 Just test this:
-<<test.cbrob>>=
-a <- 1:3
-b <- as.brob(1e100)
-cbrob(a,a,b,a)
-@ 
+\begin{Schunk}
+\begin{Sinput}
+> a <- 1:3
+> b <- as.brob(1e+100)
+> cbrob(a, a, b, a)
+\end{Sinput}
+\begin{Soutput}
+ [1] +exp(0)       +exp(0.69315) +exp(1.0986)  +exp(0)       +exp(0.69315)
+ [6] +exp(1.0986)  +exp(230.26)  +exp(0)       +exp(0.69315) +exp(1.0986) 
+\end{Soutput}
+\end{Schunk}
 
 So it worked: everything was coerced to a brob because of the single
 object of class brob in the call.
@@ -601,55 +741,45 @@ The math group generic functions are set with function {\tt
 needs a specific brob method:
 
 
-<<sqrtmethod>>=
-<<results=hide>>=
-setMethod("sqrt","brob", function(x){
- brob(ifelse(x@positive,x@x/2, NaN),TRUE)
-} )
-@ 
+\begin{Schunk}
+\begin{Sinput}
+> setMethod("sqrt", "brob", function(x) {
++     brob(ifelse(x@positive, x@x/2, NaN), TRUE)
++ })
+\end{Sinput}
+\end{Schunk}
 
 Just check that:
-<<checklogsqrt>>=
-sqrt(brob(4))
-@ 
+\begin{Schunk}
+\begin{Sinput}
+> sqrt(brob(4))
+\end{Sinput}
+\begin{Soutput}
+[1] +exp(2)
+\end{Soutput}
+\end{Schunk}
 
 With these out of the way we can use {\tt setMethod()} to define the 
 appropriate functions in the math group generic:
 
-<<mathgeneric>>=
-<<results=hide>>=
-setMethod("Math", "brob",
-          function(x){
-            switch(.Generic,
-                   abs    = brob(x@x),
-                   log    = {
-                     out <- x@x
-                     out[!x@positive] <- NaN
-                     out
-                   },
-                   exp    = brob(x),
-                   cosh   = {(brob(x) + brob(-x))/2},
-                   sinh   = {(brob(x) - brob(-x))/2},
-                   acos   =,
-                   acosh  =,
-                   asin   =,
-                   asinh  =,
-                   atan   =,
-                   atanh  =,
-                   cos    =,
-                   sin    =,
-                   tan    =,
-                   tanh   =,
-                   trunc  = callGeneric(as.numeric(x)),
-                   lgamma =,
-                   cumsum =,
-                   gamma  =,
-                   ceiling=,
-                   floor  = as.brob(callGeneric(as.numeric(x))),
-                   stop(paste(.Generic, "not allowed on Brobdingnagian numbers"))
-                     )
-          } )
-@ 
+\begin{Schunk}
+\begin{Sinput}
+> setMethod("Math", "brob", function(x) {
++     switch(.Generic, abs = brob(x@x), log = {
++         out <- x@x
++         out[!x@positive] <- NaN
++         out
++     }, exp = brob(x), cosh = {
++         (brob(x) + brob(-x))/2
++     }, sinh = {
++         (brob(x) - brob(-x))/2
++     }, acos = , acosh = , asin = , asinh = , atan = , atanh = , 
++         cos = , sin = , tan = , tanh = , trunc = callGeneric(as.numeric(x)), 
++         lgamma = , cumsum = , gamma = , ceiling = , floor = as.brob(callGeneric(as.numeric(x))), 
++         stop(paste(.Generic, "not allowed on Brobdingnagian numbers")))
++ })
+\end{Sinput}
+\end{Schunk}
 
 See how the third argument to {\tt setMethod()} is a function.  This
 function has access to {\tt .Generic}, in addition to {\tt x} and uses
@@ -661,9 +791,14 @@ log()}, which uses facts about brobs not known to S4.
 
 Just a quick check:
 
-<<checktrig>>=
-sin(brob(4))
-@ 
+\begin{Schunk}
+\begin{Sinput}
+> sin(brob(4))
+\end{Sinput}
+\begin{Soutput}
+[1] -0.928768
+\end{Soutput}
+\end{Schunk}
 
 So that works.
 
@@ -677,59 +812,57 @@ operations.  For example, function {\tt .Brob.negative()} simply
 returns the negative of a brob.  These functions are not for the user.
 
 
-<<.brob.arithstuff>>=
-.Brob.negative <- function(e1){
-  brob(e1@x,!e1@positive)
-}
-.Brob.ds <- function(e1,e2){   # "ds" == "different signs"
-  xor(e1@positive,e2@positive)
-}
-
-.Brob.add <- function(e1,e2){
-  e1 <- as.brob(e1)
-  e2 <- as.brob(e2)
-  
-  jj <- rbind(e1@x,e2@x)
-  x1 <- jj[1,]
-  x2 <- jj[2,]
-  out.x <- double(length(x1))
-  
-  jj <- rbind(e1@positive,e2@positive)
-  p1 <- jj[1,]
-  p2 <- jj[2,]
-  out.pos <- p1
-  
-  ds <- .Brob.ds(e1,e2)
-  ss <- !ds                             #ss == "Same Sign"
-
-  out.x[ss] <- pmax(x1[ss],x2[ss]) + log1p(+exp(-abs(x1[ss]-x2[ss])))
-  out.x[ds] <- pmax(x1[ds],x2[ds]) + log1p(-exp(-abs(x1[ds]-x2[ds])))
-
-  # Now special dispensation for 0+0:
-  out.x[ (x1 == -Inf) & (x2 == -Inf)] <- -Inf
-  out.pos <- p1
-  out.pos[ds] <- xor((x1[ds] > x2[ds]) , (!p1[ds]) )
-  return(brob(out.x,out.pos))
-}
-
-.Brob.mult <- function(e1,e2){
-  e1 <- as.brob(e1)
-  e2 <- as.brob(e2)
-  return(brob(e1@x + e2@x, !.Brob.ds(e1,e2)))
-}
-
-.Brob.power <- function(e1,e2){
-  stopifnot(is.brob(e1) | is.brob(e2))
-  if(is.brob(e2)){ # e2 a brob => answer a brob (ignore signs)
-    return(brob(log(e1) * brob(e2@x), TRUE))
-  } else {  #e2 a non-brob (try to account for signs)
-    s <- as.integer(2*e1@positive-1) #s = +/-1
-    return(brob(e1@x*as.brob(e2),  (s^as.numeric(e2))>0))
-  }
-}
-
-.Brob.inverse <- function(b){brob(-b@x,b@positive)}
-@ 
+\begin{Schunk}
+\begin{Sinput}
+> .Brob.negative <- function(e1) {
++     brob(e1@x, !e1@positive)
++ }
+> .Brob.ds <- function(e1, e2) {
++     xor(e1@positive, e2@positive)
++ }
+> .Brob.add <- function(e1, e2) {
++     e1 <- as.brob(e1)
++     e2 <- as.brob(e2)
++     jj <- rbind(e1@x, e2@x)
++     x1 <- jj[1, ]
++     x2 <- jj[2, ]
++     out.x <- double(length(x1))
++     jj <- rbind(e1@positive, e2@positive)
++     p1 <- jj[1, ]
++     p2 <- jj[2, ]
++     out.pos <- p1
++     ds <- .Brob.ds(e1, e2)
++     ss <- !ds
++     out.x[ss] <- pmax(x1[ss], x2[ss]) + log1p(+exp(-abs(x1[ss] - 
++         x2[ss])))
++     out.x[ds] <- pmax(x1[ds], x2[ds]) + log1p(-exp(-abs(x1[ds] - 
++         x2[ds])))
++     out.x[(x1 == -Inf) & (x2 == -Inf)] <- -Inf
++     out.pos <- p1
++     out.pos[ds] <- xor((x1[ds] > x2[ds]), (!p1[ds]))
++     return(brob(out.x, out.pos))
++ }
+> .Brob.mult <- function(e1, e2) {
++     e1 <- as.brob(e1)
++     e2 <- as.brob(e2)
++     return(brob(e1@x + e2@x, !.Brob.ds(e1, e2)))
++ }
+> .Brob.power <- function(e1, e2) {
++     stopifnot(is.brob(e1) | is.brob(e2))
++     if (is.brob(e2)) {
++         return(brob(log(e1) * brob(e2@x), TRUE))
++     }
++     else {
++         s <- as.integer(2 * e1@positive - 1)
++         return(brob(e1@x * as.brob(e2), (s^as.numeric(e2)) > 
++             0))
++     }
++ }
+> .Brob.inverse <- function(b) {
++     brob(-b@x, b@positive)
++ }
+\end{Sinput}
+\end{Schunk}
 
 Note the complexity of {\tt .Brob.add()}.  This is hard because logs
 are good at multiplying but bad at adding [{\tt ss} and {\tt ds} mean
@@ -739,18 +872,15 @@ The first step is to make sure that the unary operators {\tt +} and
 {\tt -} work.  We do this by a call to {\tt setMethod()}:
 
 
-<<setMethodArithUnary>>=
-<<results=hide>>=
-setMethod("Arith",signature(e1 = "brob", e2="missing"),
-          function(e1,e2){
-            switch(.Generic,
-                   "+" = e1,
-                   "-" = .Brob.negative(e1),
-                   stop(paste("Unary operator", .Generic,
-                              "not allowed on Brobdingnagian numbers"))
-                   )
-          } )
-@ 
+\begin{Schunk}
+\begin{Sinput}
+> setMethod("Arith", signature(e1 = "brob", e2 = "missing"), function(e1, 
++     e2) {
++     switch(.Generic, "+" = e1, "-" = .Brob.negative(e1), stop(paste("Unary operator", 
++         .Generic, "not allowed on Brobdingnagian numbers")))
++ })
+\end{Sinput}
+\end{Schunk}
 
 Note the second argument is {\tt signature(e1 = "brob",
  e2="missing")}: this effectively restricts the scope to unary
@@ -759,41 +889,52 @@ Note the second argument is {\tt signature(e1 = "brob",
 
 Check:
 
-<<check_minus_5>>=
--brob(5)
-@ 
+\begin{Schunk}
+\begin{Sinput}
+> -brob(5)
+\end{Sinput}
+\begin{Soutput}
+[1] -exp(5)
+\end{Soutput}
+\end{Schunk}
 
 So that works.
 
 Next step, another user-unfriendly helper function that does the dirty work:
 
 
-<<brob.arith>>=
-.Brob.arith <- function(e1,e2){
-  switch(.Generic,
-         "+" = .Brob.add  (e1, e2),
-         "-" = .Brob.add  (e1, .Brob.negative(as.brob(e2))),
-         "*" = .Brob.mult (e1, e2),
-         "/" = .Brob.mult (e1, .Brob.inverse(as.brob(e2))),
-         "^" = .Brob.power(e1, e2),
-         stop(paste("binary operator \"", .Generic, "\" not defined for Brobdingnagian numbers"))
-         ) }
-@ 
+\begin{Schunk}
+\begin{Sinput}
+> .Brob.arith <- function(e1, e2) {
++     switch(.Generic, "+" = .Brob.add(e1, e2), "-" = .Brob.add(e1, 
++         .Brob.negative(as.brob(e2))), "*" = .Brob.mult(e1, e2), 
++         "/" = .Brob.mult(e1, .Brob.inverse(as.brob(e2))), "^" = .Brob.power(e1, 
++             e2), stop(paste("binary operator \"", .Generic, "\" not defined for Brobdingnagian numbers")))
++ }
+\end{Sinput}
+\end{Schunk}
 
 
 And now we can call {\tt setMethod()}:
 
-<<setMethodArith,results=hide>>=
-setMethod("Arith", signature(e1 = "brob", e2="ANY"), .Brob.arith)
-setMethod("Arith", signature(e1 = "ANY", e2="brob"), .Brob.arith)
-setMethod("Arith", signature(e1 = "brob", e2="brob"), .Brob.arith)
-@ 
+\begin{Schunk}
+\begin{Sinput}
+> setMethod("Arith", signature(e1 = "brob", e2 = "ANY"), .Brob.arith)
+> setMethod("Arith", signature(e1 = "ANY", e2 = "brob"), .Brob.arith)
+> setMethod("Arith", signature(e1 = "brob", e2 = "brob"), .Brob.arith)
+\end{Sinput}
+\end{Schunk}
 
 Better check it:
 
-<<check_addition>>=
-1e100 + as.brob(10)^100
-@ 
+\begin{Schunk}
+\begin{Sinput}
+> 1e+100 + as.brob(10)^100
+\end{Sinput}
+\begin{Soutput}
+[1] +exp(230.95)
+\end{Soutput}
+\end{Schunk}
 
 
 
@@ -803,60 +944,68 @@ Better check it:
 This is pretty much the same as the others.  First, some
 user-unfriendly helper functions:
 
-<<brob.equalandgreater>>=
-.Brob.equal <- function(e1,e2){
-  (e1@x==e2@x) & (e1@positive==e2@positive)
-}
-
-.Brob.greater <- function(e1,e2){
-  jj.x <- rbind(e1@x,e2@x)
-  jj.p <- rbind(e1@positive,e2@positive)
-
-  ds <- .Brob.ds(e1,e2)
-  ss <- !ds                             #ss == "Same Sign"
-  greater <- logical(length(ss))
-  
-  greater[ds] <- jj.p[1,ds]
-  greater[ss] <- jj.p[1,ss] & (jj.x[1,ss] > jj.x[2,ss])
-  return(greater)
-}
-@ 
+\begin{Schunk}
+\begin{Sinput}
+> .Brob.equal <- function(e1, e2) {
++     (e1@x == e2@x) & (e1@positive == e2@positive)
++ }
+> .Brob.greater <- function(e1, e2) {
++     jj.x <- rbind(e1@x, e2@x)
++     jj.p <- rbind(e1@positive, e2@positive)
++     ds <- .Brob.ds(e1, e2)
++     ss <- !ds
++     greater <- logical(length(ss))
++     greater[ds] <- jj.p[1, ds]
++     greater[ss] <- jj.p[1, ss] & (jj.x[1, ss] > jj.x[2, ss])
++     return(greater)
++ }
+\end{Sinput}
+\end{Schunk}
 
 These are the fundamental ones.  We can now define another
 all-encompassing user-unfriendly function:
 
-<<brob.compare>>=
-".Brob.compare" <- function(e1,e2){
-  e1 <- as.brob(e1)
-  e2 <- as.brob(e2)
-  switch(.Generic,
-         "==" =  .Brob.equal(e1,e2),
-         "!=" = !.Brob.equal(e1,e2),
-         ">"  =  .Brob.greater(e1,e2),
-         "<"  = !.Brob.greater(e1,e2) & !.Brob.equal(e1,e2),
-         ">=" =  .Brob.greater(e1,e2) |  .Brob.equal(e1,e2),
-         "<=" = !.Brob.greater(e1,e2) |  .Brob.equal(e1,e2),
-         stop(paste(.Generic, "not supported for Brobdingnagian numbers"))
-         )
-}
-@ 
+\begin{Schunk}
+\begin{Sinput}
+> ".Brob.compare" <- function(e1, e2) {
++     e1 <- as.brob(e1)
++     e2 <- as.brob(e2)
++     switch(.Generic, "==" = .Brob.equal(e1, e2), "!=" = !.Brob.equal(e1, 
++         e2), ">" = .Brob.greater(e1, e2), "<" = !.Brob.greater(e1, 
++         e2) & !.Brob.equal(e1, e2), ">=" = .Brob.greater(e1, 
++         e2) | .Brob.equal(e1, e2), "<=" = !.Brob.greater(e1, 
++         e2) | .Brob.equal(e1, e2), stop(paste(.Generic, "not supported for Brobdingnagian numbers")))
++ }
+\end{Sinput}
+\end{Schunk}
 
 See how this function coerces both arguments to brobs.
 Now the call to {\tt setMethod()}:
 
-<<setMethodCompare>>=
-<<results=hide>>=
-setMethod("Compare", signature(e1="brob", e2="ANY" ), .Brob.compare)
-setMethod("Compare", signature(e1="ANY" , e2="brob"), .Brob.compare)
-setMethod("Compare", signature(e1="brob", e2="brob"), .Brob.compare)
-@ 
+\begin{Schunk}
+\begin{Sinput}
+> setMethod("Compare", signature(e1 = "brob", e2 = "ANY"), .Brob.compare)
+> setMethod("Compare", signature(e1 = "ANY", e2 = "brob"), .Brob.compare)
+> setMethod("Compare", signature(e1 = "brob", e2 = "brob"), .Brob.compare)
+\end{Sinput}
+\end{Schunk}
 
 Better check:
 
-<<check.compare>>=
-as.brob(10) < as.brob(11)
-as.brob(10) <= as.brob(10)
-@ 
+\begin{Schunk}
+\begin{Sinput}
+> as.brob(10) < as.brob(11)
+\end{Sinput}
+\begin{Soutput}
+[1] TRUE
+\end{Soutput}
+\begin{Sinput}
+> as.brob(10) <= as.brob(10)
+\end{Sinput}
+\begin{Soutput}
+[1] TRUE
+\end{Soutput}
+\end{Schunk}
 
 So that works.
 
@@ -868,22 +1017,25 @@ So that works.
 
 First a helper function:
 
-<<brob.logic>>=
-.Brob.logic <- function(e1,e2){
-  stop("No logic currently implemented for Brobdingnagian numbers")
-}
-@ 
+\begin{Schunk}
+\begin{Sinput}
+> .Brob.logic <- function(e1, e2) {
++     stop("No logic currently implemented for Brobdingnagian numbers")
++ }
+\end{Sinput}
+\end{Schunk}
 
 
 Now the calls to {\tt setMethod()}:
 
 
-<<setmethodlogic>>=
-<<results=hide>>=
-setMethod("Logic",signature(e1="swift",e2="ANY"), .Brob.logic)
-setMethod("Logic",signature(e1="ANY",e2="swift"), .Brob.logic)
-setMethod("Logic",signature(e1="swift",e2="swift"), .Brob.logic)
-@ 
+\begin{Schunk}
+\begin{Sinput}
+> setMethod("Logic", signature(e1 = "swift", e2 = "ANY"), .Brob.logic)
+> setMethod("Logic", signature(e1 = "ANY", e2 = "swift"), .Brob.logic)
+> setMethod("Logic", signature(e1 = "swift", e2 = "swift"), .Brob.logic)
+\end{Sinput}
+\end{Schunk}
 
 Note that the signatures specify {\tt swift} objects, so that glubs
 will be handled correctly too in one fell swoop. Note the third call
@@ -919,101 +1071,82 @@ changed.  This applies to the other group generics too ({\tt max},
 types of R, one needs to check whether or not {\tt log} (or {\tt max}
 or whatever) is generic before calling {\tt setGeneric()}.
 
-<<logchunk,results=hide>>=
-if(!isGeneric("log")){
-  setGeneric("log",group="Math")
-}
-@ 
+\begin{Schunk}
+\begin{Sinput}
+> if (!isGeneric("log")) {
++     setGeneric("log", group = "Math")
++ }
+\end{Sinput}
+\end{Schunk}
 
 
-<<miscgenerics>>=
-<<results=hide>>=
-if(!isGeneric("sum")){
-setGeneric("max", function(x, ..., na.rm = FALSE)
-	{
-		standardGeneric("max")
-	},
-	useAsDefault = function(x, ..., na.rm = FALSE)
-	{
-		base::max(x, ..., na.rm = na.rm)
-	},
-	group = "Summary")
-
-setGeneric("min", function(x, ..., na.rm = FALSE)
-	{
-		standardGeneric("min")
-	},
-	useAsDefault = function(x, ..., na.rm = FALSE)
-	{
-		base::min(x, ..., na.rm = na.rm)
-	},
-	group = "Summary")
-
-setGeneric("range", function(x, ..., na.rm = FALSE)
-	{
-		standardGeneric("range")
-	},
-	useAsDefault = function(x, ..., na.rm = FALSE)
-	{
-		base::range(x, ..., na.rm = na.rm)
-	},
-	group = "Summary")
-
-setGeneric("prod", function(x, ..., na.rm = FALSE)
-	{
-		standardGeneric("prod")
-	},
-	useAsDefault = function(x, ..., na.rm = FALSE)
-	{
-		base::prod(x, ..., na.rm = na.rm)
-	},
-	group = "Summary")
-
-setGeneric("sum", function(x, ..., na.rm = FALSE)
-	{
-		standardGeneric("sum")
-	},
-	useAsDefault = function(x, ..., na.rm = FALSE)
-	{
-		base::sum(x, ..., na.rm = na.rm)
-	},
-	group = "Summary")
-}
-@ 
+\begin{Schunk}
+\begin{Sinput}
+> if (!isGeneric("sum")) {
++     setGeneric("max", function(x, ..., na.rm = FALSE) {
++         standardGeneric("max")
++     }, useAsDefault = function(x, ..., na.rm = FALSE) {
++         base::max(x, ..., na.rm = na.rm)
++     }, group = "Summary")
++     setGeneric("min", function(x, ..., na.rm = FALSE) {
++         standardGeneric("min")
++     }, useAsDefault = function(x, ..., na.rm = FALSE) {
++         base::min(x, ..., na.rm = na.rm)
++     }, group = "Summary")
++     setGeneric("range", function(x, ..., na.rm = FALSE) {
++         standardGeneric("range")
++     }, useAsDefault = function(x, ..., na.rm = FALSE) {
++         base::range(x, ..., na.rm = na.rm)
++     }, group = "Summary")
++     setGeneric("prod", function(x, ..., na.rm = FALSE) {
++         standardGeneric("prod")
++     }, useAsDefault = function(x, ..., na.rm = FALSE) {
++         base::prod(x, ..., na.rm = na.rm)
++     }, group = "Summary")
++     setGeneric("sum", function(x, ..., na.rm = FALSE) {
++         standardGeneric("sum")
++     }, useAsDefault = function(x, ..., na.rm = FALSE) {
++         base::sum(x, ..., na.rm = na.rm)
++     }, group = "Summary")
++ }
+\end{Sinput}
+\end{Schunk}
 
 Now we need some more user-unfriendly helper functions:
 
-<<brob.maxmin>>=
-.Brob.max <- function(x, ..., na.rm=FALSE){
-  p <- x@positive
-  val <- x@x
-  if(any(p)){
-    return(brob(max(val[p])))
-  } else {
-    # all negative
-    return(brob(min(val),FALSE))
-  }
-}
-
-.Brob.prod <- function(x){
-  p <- x@positive
-  val <- x@x
-  return(brob(sum(val),(sum(p)%%2)==0))
-}
-
-.Brob.sum <- function(x){
-  .Brob.sum.allpositive( x[x>0]) -
-  .Brob.sum.allpositive(-x[x<0]) 
-}
-
-.Brob.sum.allpositive <- function(x){
-  if(length(x)<1){return(as.brob(0))}
-  val <- x@x
-  p <- x@positive
-  mv <- max(val)
-  return(brob(mv + log1p(sum(exp(val[-which.max(val)]-mv))),TRUE))
-}
-@ 
+\begin{Schunk}
+\begin{Sinput}
+> .Brob.max <- function(x, ..., na.rm = FALSE) {
++     p <- x@positive
++     val <- x@x
++     if (any(p)) {
++         return(brob(max(val[p])))
++     }
++     else {
++         return(brob(min(val), FALSE))
++     }
++ }
+> .Brob.prod <- function(x) {
++     p <- x@positive
++     val <- x@x
++     return(brob(sum(val), (sum(p)%%2) == 0))
++ }
+> .Brob.sum <- function(x) {
++     .Brob.sum.allpositive(x[x > 0]) - .Brob.sum.allpositive(-x[x < 
++         0])
++ }
+> .Brob.sum.allpositive <- function(x) {
++     if (length(x) < 1) {
++         return(as.brob(0))
++     }
++     val <- x@x
++     p <- x@positive
++     mv <- max(val)
++     return(brob(mv + log1p(sum(exp(val[-which.max(val)] - mv))), 
++         TRUE))
++ }
+\end{Sinput}
+\end{Schunk}
 
 Note the final function that sums its arguments, which are all assumed
 to be positive, in an intelligent, accurate, and efficient manner.  No
@@ -1023,27 +1156,27 @@ We can define {\tt .Brob.sum()} in terms of this: return the
 difference between the sum of the positive arguments and and the sum
 of minus the negative arguments.
 
-<<setmethodsummary>>=
-<<results=hide>>=
-setMethod("Summary", "brob",
-          function(x, ..., na.rm=FALSE){
-            switch(.Generic,
-                   max    =  .Brob.max( x, ..., na.rm=na.rm),
-                   min    = -.Brob.max(-x, ..., na.rm=na.rm),
-                   range  =   cbrob(min(x,na.rm=na.rm),max(x,na.rm=na.rm)),
-                   prod   =  .Brob.prod(x),
-                   sum    =  .Brob.sum(x),
-                   stop(paste(.Generic, "not allowed on Brobdingnagian numbers"))
-                   )
-          }
-          )
-@ 
+\begin{Schunk}
+\begin{Sinput}
+> setMethod("Summary", "brob", function(x, ..., na.rm = FALSE) {
++     switch(.Generic, max = .Brob.max(x, ..., na.rm = na.rm), 
++         min = -.Brob.max(-x, ..., na.rm = na.rm), range = cbrob(min(x, 
++             na.rm = na.rm), max(x, na.rm = na.rm)), prod = .Brob.prod(x), 
++         sum = .Brob.sum(x), stop(paste(.Generic, "not allowed on Brobdingnagian numbers")))
++ })
+\end{Sinput}
+\end{Schunk}
 
 Better check:
 
-<<checksum>>=
-sum(as.brob(1:100)) - 5050
-@ 
+\begin{Schunk}
+\begin{Sinput}
+> sum(as.brob(1:100)) - 5050
+\end{Sinput}
+\begin{Soutput}
+[1] -exp(-Inf)
+\end{Soutput}
+\end{Schunk}
 
 showing acceptable accuracy.
 
@@ -1053,31 +1186,60 @@ We can try to evaluate a factorial.
 Stirling's approximation is~$n!\sim\sqrt{2\pi
   n}\,e^{-n}n^n$:
 
-<<factorial>>=
-stirling <- function(x){sqrt(2*pi*x)*exp(-x)*x^x}
-@ 
+\begin{Schunk}
+\begin{Sinput}
+> stirling <- function(x) {
++     sqrt(2 * pi * x) * exp(-x) * x^x
++ }
+\end{Sinput}
+\end{Schunk}
 
 And this should work seamlessly with Brobs:
 
 
-<<use.stirling>>=
-stirling(100)
-stirling(as.brob(100))
-@ 
+\begin{Schunk}
+\begin{Sinput}
+> stirling(100)
+\end{Sinput}
+\begin{Soutput}
+[1] 9.324848e+157
+\end{Soutput}
+\begin{Sinput}
+> stirling(as.brob(100))
+\end{Sinput}
+\begin{Soutput}
+[1] +exp(363.74)
+\end{Soutput}
+\end{Schunk}
 
 And are they the same?
 
-<<compare.two.stirlings>>=
-as.numeric(stirling(100)/stirling(as.brob(100)))
-@
+\begin{Schunk}
+\begin{Sinput}
+> as.numeric(stirling(100)/stirling(as.brob(100)))
+\end{Sinput}
+\begin{Soutput}
+[1] 1
+\end{Soutput}
+\end{Schunk}
 
 \ldots pretty near.  But the great advantage of Brobdingnagian numbers
 is that they can handle numbers larger than the IEEE limit:
 
-<<stirling.of.1000>>=
-stirling(1000)
-stirling(as.brob(1000))
-@ 
+\begin{Schunk}
+\begin{Sinput}
+> stirling(1000)
+\end{Sinput}
+\begin{Soutput}
+[1] NaN
+\end{Soutput}
+\begin{Sinput}
+> stirling(as.brob(1000))
+\end{Sinput}
+\begin{Soutput}
+[1] +exp(5912.1)
+\end{Soutput}
+\end{Schunk}
 
 \noindent
 and this is accurate to about 12 sig figs, which is accurate enough

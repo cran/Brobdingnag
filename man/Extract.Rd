@@ -9,11 +9,8 @@
 \alias{[<-,glub-method}
 \title{Extract or Replace Parts of brobs or glubs}
 \description{
-  Extract or replace subsets of brobs or glubs
-}
-\usage{
-x[i]
-x[i] <- value
+   Methods for \code{"["} and  \code{"[<-"}, i.e., extraction or
+   subsetting of brobs and glubs.
 }
 \arguments{
   \item{x}{Object of class brob or glub}
