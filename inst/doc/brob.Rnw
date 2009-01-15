@@ -1,37 +1,68 @@
-% -*- mode: noweb; noweb-default-code-mode: R-mode; -*-
+\documentclass[nojss]{jss}
 
-\documentclass[a4paper]{article}
+\usepackage{dsfont}
+\usepackage{bbm}
+\usepackage{amsfonts}
+\usepackage{wasysym}
 
-\author{Robin K. S. Hankin}
-\title{A step-by-step guide to writing a simple package that uses S4 methods: a ``hello world'' example}
+\author{Robin K. S. Hankin\\University of Cambridge}
+\title{A step-by-step guide to writing a simple package that uses \proglang{S4} methods: a ``hello world'' example}
 %\VignetteIndexEntry{Brobdingnag: a ``hello world'' package using S4 methods}
-\SweaveOpts{print=FALSE}
-\usepackage{a4wide}
 
+
+\Plainauthor{Robin K. S. Hankin}
+\Plaintitle{Integer Partitions in R} 
+\Shorttitle{Integer Partitions in R}
+
+\Abstract{
+  This vignette shows how to use \proglang{S4} methods to create a
+  simple package.
+  
+  The other vignette shows how to use the package for solving problems
+  involving very large numbers; it is based
+  on~\cite{Rnews:Hankin:2007}.
+}
+  
+\Keywords{\proglang{S4} methods, Brobdingnag, \proglang{R}}
+\Plainkeywords{S4 methods, Brobdingnag, R}
+
+\Address{
+  Robin K. S. Hankin\\
+  The University of Cambridge\\
+  19 Silver Street
+  Cambridge CB3 9EP
+  United Kingdom\\
+  E-mail: \email{rksh1@cam.ac.uk}
+}
+
+%% need no \usepackage{Sweave.sty}
+\SweaveOpts{echo=TRUE}
 \begin{document}
-\maketitle
+
+\newsymbol\leqslant 1336
+
 
 \section{Introduction}
 
 This vignette proves that it is possible for a `normal'
 person\footnote{That is, someone without super powers (such as might
-manifest themselves after being bitten by a radioactive member of
-R-core, for example)} to write a package using S4 methods.  It gives a
-step-by-step guide to creating a package that contains two S4 classes
-(brobs and glubs) and a bunch of basic utilities for manipulating
-them.
+  manifest themselves after being bitten by a radioactive member of
+  \proglang{R}-core, for example)} to write a package using \proglang{S4}
+methods.  It gives a step-by-step guide to creating a package that
+contains two \proglang{S4} classes (brobs and glubs) and a bunch of basic
+utilities for manipulating them.
 
-This document focuses on the S4 aspects of the package.  For an
+This document focuses on the \proglang{S4} aspects of the package.  For an
 overview of the mathematical properties of Brobdingnagian numbers,
-their potential and their limitations, see the {\tt .Rd} files and the
-entry in Rnews (forthcoming).
+their potential and their limitations, see the {\tt .Rd} files
+and~\cite{Rnews:Hankin:2007}. 
 
 If you like this vignette and package, and find it useful, let me
 know.  If there is anything wrong with it, let me know.
 
-I would not recommend that anyone uses S4 unless there is a good
-reason for it (many of my packages use S3 methods which I found to be
-perfectly adequate for my needs).  Reasons for using S4 might include
+I would not recommend that anyone uses \proglang{S4} unless there is a good
+reason for it (many of my packages use \proglang{S3} methods which I found to be
+perfectly adequate for my needs).  Reasons for using \proglang{S4} might include
 a package having a large number of object classes that have a
 complicated hierarchical structure, or a complicated set of methods
 that interact with the object classes in a complicated manner.
@@ -47,7 +78,7 @@ without consulting the following resources:
      ISBN 0-387-98503-4 (The Green Book).
 \item W. N. Venables and B. D. Ripley (2000), {\it S Programming}.  Springer,
      ISBN 0-387-98966-8.
-\item John Chambers (2006).  {\tt How S4 methods work} (available on CRAN).
+\item John Chambers (2006).  {\tt How \proglang{S4} methods work} (available on CRAN).
 \end{itemize}
 
 \subsection{Overview}
@@ -119,7 +150,7 @@ The second argument, {\tt prototype}, specifies default data for the
 slots.  This kicks in when defining a zero-length brob; an example
 would be extracting {\tt x[FALSE]} where {\tt x} is a brob.
 
-The third argument, {\tt contains}, tells R that class {\tt swift}
+The third argument, {\tt contains}, tells \proglang{R} that class {\tt swift}
 (which was specified to be virtual), has {\tt brob} as a subclass.
 We will need this later when we start to deal with {\tt glub}s, which
 are also a subclass of {\tt swift}.
@@ -135,7 +166,7 @@ Notes:
 \item Function {\tt new()} is the {\em only} way to create objects
   of class brob.  So, any object of class brob {\em must} have been
   created with function {\tt new()}.  This is part of what the
-  ``formal'' tag for S4 means\footnote{Compare S3, in which I can say
+  ``formal'' tag for \proglang{S4} means\footnote{Compare \proglang{S3}, in which I can say
 
   {\tt a <- 1:10; class(a) <- "lilliput"}}.
 \item Function {\tt new()} requires its arguments to be named, and no
@@ -185,7 +216,7 @@ with {\tt .Brob.}; these are internal and not intended for the user.
 They are also not documented.
 
 So now we have a function, {\tt .Brob.valid()}, that checks whether
-its argument has slots of the same length.  We need to tell R that
+its argument has slots of the same length.  We need to tell \proglang{R} that
 this function should be invoked every time a {\tt brob} is created.
 Function {\tt setValidity()} does this:
 
@@ -255,7 +286,7 @@ confusing. {\tt brob(5)} returns a number formally equal to~$e^5$,
 not~$5$.   This is documented in the help page, where the user is
 encouraged to use function {\tt as.brob()} instead.
 
-\section{Testing for brobs: an {\tt is.brob()} function}
+\section[Testing for brobs: an ``is.brob()'' function]{Testing for brobs: an {\tt is.brob()} function}
 
 Function {\tt is()} will test for an object being a brob:
 
@@ -264,7 +295,7 @@ is(brob(1:5),"brob")
 @ 
 
 (see {\tt help(is)} for more details) but a small package like this,
-with only brobs and glubs to consider, could benefit from an S3-style
+with only brobs and glubs to consider, could benefit from an \proglang{S3}-style
 function {\tt is.brob()}.  This is easy to define:
 
 <<is.brob_definition>>=
@@ -284,7 +315,7 @@ is.dpoMatrix-class()}.}.
 We also define an {\tt is.glub()} function similarly.  So now we can
 check for objects being brobs and glubs.
 
-\section{Coercion: an {\tt as.brob()} function}
+\section[Coercion: an ``as.brob()'' function]{Coercion: an {\tt as.brob()} function}
 
 Next, some ways to coerce objects to class brob:
 
@@ -328,7 +359,7 @@ Check  {\tt as.brob()}:
 as.brob(1:10)
 @ 
 
-\section{Coercion: an {\tt as.numeric()} function}
+\section[Coercion: an ``as.numeric()'' function]{Coercion: an {\tt as.numeric()} function}
 
 Now we need some methods to coerce brobs to numeric.  This is a
 two-stage process.
@@ -356,7 +387,7 @@ because, to quote Martin Maechler, ``it seems very ugly to define more
 than very few {\tt as.FOO()} methods, and very natural to work with
 {\tt as(*, "FOO")} [constructions]''.  Of course, there's nothing to
 stop a user typing {\tt as(x,"numeric")} if they wish.}.  To
-accomplish this, we have to tell R that function {\tt as.numeric()}
+accomplish this, we have to tell \proglang{R} that function {\tt as.numeric()}
 should execute {\tt as(x,"numeric")} when given a {\tt brob}.  This is
 done by calling function {\tt setMethod()}:
 
@@ -400,7 +431,7 @@ much easier.  First, a helper function:
    }
 @ 
 
-Then an S3 method:
+Then an \proglang{S3} method:
 
 <<print.brob>>=
 print.brob <- function(x, ...){
@@ -505,12 +536,12 @@ setReplaceMethod("[",signature(x="brob"),
 See how the replacement function tests for the replacement value being
 a brob and acts accordingly.
 
-\section{Concatenation function {\tt cbrob()}}
+\section[Concatenation function ``cbrob()'']{Concatenation function {\tt cbrob()}}
 \label{cbrob}
 
 It is not possible to make {\tt c()} behave as expected for
 brobs\footnote{The ideas in this section are entirely due to John
-Chambers, who kindly replied to a question of mine on the R-devel
+Chambers, who kindly replied to a question of mine on the \proglang{R}-devel
 email list} (that is, if any of its arguments are brobs, to coerce all
 its arguments to brobs and then concatenate).
 
@@ -657,7 +688,7 @@ it to decide which operation to perform.
 
 See how functions {\tt acos()} to {\tt trunc()} just drop through to
 {\tt callGeneric(as.numeric(x))}.  See also the method for {\tt
-log()}, which uses facts about brobs not known to S4.
+log()}, which uses facts about brobs not known to \proglang{S4}.
 
 Just a quick check:
 
@@ -864,7 +895,7 @@ So that works.
 \label{logicSection}
 
 
-(The material in this section works in R-2.4.1, but not R-2.4.0).
+(The material in this section works in \proglang{R}-2.4.1, but not \proglang{R}-2.4.0).
 
 First a helper function:
 
@@ -905,18 +936,18 @@ the new class of objects too.
 
 \section{Miscellaneous generics}
 
-We now have to tell R that certain functions are to be considered
+We now have to tell \proglang{R} that certain functions are to be considered
 generic.  The functions are {\tt max(), min(), range(), prod()}, and
 {\tt sum()}.  The help page for (eg) {\tt max()} specifies that the
 arguments must be numeric, and brobs aren't numeric.
 
-In versions of R prior to 2.6-0 (I think), {\tt log()} needs to be
+In versions of \proglang{R} prior to 2.6-0 (I think), {\tt log()} needs to be
 made a generic with {\tt setGeneric()}.  But, in versions 2.6-0 and
 above, all the group generics (including {\tt log}) are primitive,
 which means that the generic function is implicit and cannot be
 changed.  This applies to the other group generics too ({\tt max},
 {\tt min}, {\tt prod}, {\tt range} {\tt sum}).  So to work with both
-types of R, one needs to check whether or not {\tt log} (or {\tt max}
+types of \proglang{R}, one needs to check whether or not {\tt log} (or {\tt max}
 or whatever) is generic before calling {\tt setGeneric()}.
 
 <<logchunk,results=hide>>=
@@ -1080,7 +1111,7 @@ stirling(as.brob(1000))
 @ 
 
 \noindent
-and this is accurate to about 12 sig figs, which is accurate enough
+and this is accurate to about~12 sig figs, which is accurate enough
 for many purposes.  The number of sig figs decreases with
 progressively larger numbers, essentially because increasing amounts
 of floating point accuracy is gobbled up by storing the exponent of a
@@ -1090,19 +1121,10 @@ large number, and less is left for the mantissa.
 \section*{Acknowledgments}
 
 I gratefully acknowledge the help given to me by many members of the
-R-help and R-devel lists, especially Martin Maechler, Brian Ripley,
+\proglang{R}-help and \proglang{R}-devel lists, especially Martin Maechler, Brian Ripley,
 and John Chambers.
 
-\newpage
+\nocite{*}
 
-  \noindent
-  Robin K. S. Hankin\\
-  National Oceanography Centre, Southampton\\
-  European Way\\
-  Southampton SO14 3ZH\\
-  United Kingdom\\
-  E-mail: {\tt r.hankin@noc.soton.ac.uk}
-  URL: {\tt http://www.noc.soton.ac.uk}
-
-
+\bibliography{brob}
 \end{document}

@@ -124,9 +124,7 @@ setMethod(".cPair", c("ANY", "ANY"),   function(x,y){c(x,y)})
   brob(c(x@x,y@x),c(x@positive,y@positive))
 }
 
-if(!isGeneric("log")){
-  setGeneric("log",group="Math")
-}
+setGeneric("log")
 
 setMethod("sqrt","brob", function(x){
  brob(ifelse(x@positive,x@x/2, NaN),TRUE)
@@ -138,6 +136,16 @@ setMethod("Math", "brob",
                    abs    = brob(x@x),
                    log    = {
                      out <- x@x
+                     out[!x@positive] <- NaN
+                     out
+                   },
+                   log10  = {
+                     out <- x@x/log(10)
+                     out[!x@positive] <- NaN
+                     out
+                   },
+                   log2 = {
+                     out <- x@x/log(2)
                      out[!x@positive] <- NaN
                      out
                    },
