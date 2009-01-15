@@ -1,12 +1,12 @@
-c513ef477ab1b53d2fa78742b3287c09 *DESCRIPTION
+ba34419a1a9c7ed4e5b955a777c5f604 *DESCRIPTION
 f94cf8b777ec439344b9dbc2b8dddf03 *NAMESPACE
 c6f09ac0e6aede04ec949ce401679faf *R/brob.R
 e0e26c2f87a0a9762fcfbaa9b98cb14b *R/glub.R
 edad053c7b9162b8ab0595b2ebf9ff0a *inst/doc/brob.Rnw
 5cf6c46a3f1dfc10d123edc61a930e23 *inst/doc/brob.bib
-59549275b25762af1bcc43f8fdb922f4 *inst/doc/brob.pdf
+88a1c7b5c3c1931e81864b88dca5135d *inst/doc/brob.pdf
 94f85ba21962a25c44c9b0d6b3f41c50 *inst/doc/brobpaper.Rnw
-a3ac232dc88fb828d51ec56d99bbdfc9 *inst/doc/brobpaper.pdf
+59b54f32cc7b8e588efef939e518088e *inst/doc/brobpaper.pdf
 0d2def0996a161ecbc9a96ca9cd090d5 *man/Arith.Rd
 794f3e13e10cfec16f40f46422f2f929 *man/Brobdingnag-package.Rd
 78a6e4f179558e1e5d6ffef55781e3b8 *man/Compare.Rd
