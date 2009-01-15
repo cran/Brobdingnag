@@ -26,10 +26,9 @@
 }
 \author{Robin K. S. Hankin}
 \note{
-  If
-  \eqn{\left|x\right|>\mbox{\code{.Machine$double.xmax}}}{|x| > .Machine$double.xmax},
-  \code{as.numeric(x)} returns \code{Inf} or \code{-Inf} but no warning
-  is given.  
+  If \eqn{\left|x\right|}{|x|} is greater than
+  \code{.Machine$double.xmax}, then \code{as.numeric(x)} returns
+  \code{Inf} or \code{-Inf} but no warning is given.
 }
 \examples{
 a <- as.brob(1:10)
