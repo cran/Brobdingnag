@@ -1,11 +1,11 @@
 Package: Brobdingnag
 Type: Package
 Title: Very large numbers in R
-Version: 1.2-1
+Version: 1.2-2
 Date: 2009-15-01
 Author: Robin K. S. Hankin
 Depends: R (>= 2.13.0), methods,graphics
-Maintainer: <hankin.robin@gmail.com>
+Maintainer: Robin K. S. Hankin <hankin.robin@gmail.com>
 Description: Handles very large numbers in R.  Real numbers are held
         using their natural logarithms, plus a logical flag indicating
         sign.  The package includes a vignette that gives a
@@ -13,5 +13,5 @@ Description: Handles very large numbers in R.  Real numbers are held
 LazyLoad: yes
 License: GPL
 Repository: CRAN
-Packaged: 2011-08-14 20:27:00 UTC; rksh
-Date/Publication: 2011-08-15 09:06:41
+Packaged: 2012-12-17 03:28:02 UTC; rksh
+Date/Publication: 2013-01-21 12:29:22
