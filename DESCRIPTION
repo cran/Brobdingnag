@@ -1,7 +1,7 @@
 Package: Brobdingnag
 Type: Package
 Title: Very large numbers in R
-Version: 1.1-8
+Version: 1.2-0
 Date: 2009-15-01
 Author: Robin K. S. Hankin
 Depends: R (>= 2.6.0), methods,graphics
@@ -12,6 +12,6 @@ Description: Handles very large numbers in R.  Real numbers are held
         step-by-step introduction to using S4 methods.
 LazyLoad: yes
 License: GPL
-Packaged: 2011-02-13 06:57:38 UTC; rksh
 Repository: CRAN
-Date/Publication: 2011-02-13 16:11:07
+Packaged: 2011-08-11 22:05:12 UTC; rksh
+Date/Publication: 2011-08-12 05:07:42
