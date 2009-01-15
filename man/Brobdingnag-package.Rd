@@ -36,11 +36,14 @@ License: \tab GPL\cr
 
 The user should coerce numeric vectors to brobs using \code{as.brob()}.
 The 4 arithmetic operations, concatenation, trig functions, comparisons,
-and so forth, should operate on brobs transparently.
+and so forth, should operate on brobs transparently.  Concatentation of
+Brobdingnagian numbers should be done with \code{cbrob()} instead of
+\code{c()}.
 
 The basic low-level function is \code{brob()}, which takes two vectors:
 a double for the value and a logical for the sign (defaulting to
-positive).  Given \code{x}, function \code{brob(x)} returns $e^x$.
+positive).  Given \code{x}, function \code{brob(x)} returns
+\eqn{e^x}{exp(x)}.
 
 Functions \code{as.glub()} and \code{glub()} perform analogous
 operations for the complex plane.
@@ -48,7 +51,7 @@ operations for the complex plane.
 }
 \author{
 Robin K. S. Hankin
-<r.hankin@noc.soton.ac.uk>
+<hankin.robin@gmail.com>
 }
 \keyword{ package }
 \examples{

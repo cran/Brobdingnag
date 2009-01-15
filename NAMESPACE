@@ -1,2 +1,2 @@
-importFrom(graphics, plot)
 exportPattern("^[^\\.]")
+import("methods")

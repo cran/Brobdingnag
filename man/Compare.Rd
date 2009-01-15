@@ -16,6 +16,15 @@
 \note{
   As for \code{min()} and \code{max()}, comparison is not entirely
   straightforward in the presence of \code{NA}s.
+
+  The low-level workhorses are \code{.Brob.equal()} for equality and
+  \code{.Brob.greater()} for \sQuote{strictly greater than}.  All other
+  comparisons are calculated by combining these two.
+  
+  Comparison [function \code{.Brob.compare()}] explicitly tests for a
+  zero length argument and if given one returns \code{logical(0)} to
+  match base behaviour.
+  
 }
 \examples{
   a <- as.brob(10)^(0.5 + 97:103)

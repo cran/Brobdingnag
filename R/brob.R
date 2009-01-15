@@ -268,6 +268,10 @@ setMethod("Arith", signature(e1 = "brob", e2="brob"), .Brob.arith)
 }
 
 ".Brob.compare" <- function(e1,e2){
+   if( (length(e1) == 0) | (length(e2)==0)) {
+       return(logical(0))
+   }
+
   e1 <- as.brob(e1)
   e2 <- as.brob(e2)
   switch(.Generic,
