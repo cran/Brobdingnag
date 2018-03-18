@@ -34,6 +34,17 @@ argument checking.  In general numerical work, use function
 want \eqn{e^{10^7}}{e^1e7}, you should use \code{brob(1e7)}; 
 this would be an \strong{exact} representation.
 }
+
+\note{
+
+  The package has poor handling of \code{NA} and \code{NaN}:
+
+  \code{as.brob(1) + as.brob(c(1,NA))}
+
+  currently returns an error.
+
+  }
+
 \author{Robin K. S, Hankin}
 \seealso{\code{\link{glub}}}
 \examples{
