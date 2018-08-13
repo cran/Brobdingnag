@@ -7,13 +7,13 @@
 
 
 ###################################################
-### code chunk number 2: brobpaper.Rnw:70-71
+### code chunk number 2: brobpaper.Rnw:67-68
 ###################################################
 require(Brobdingnag)
 
 
 ###################################################
-### code chunk number 3: brobpaper.Rnw:72-73
+### code chunk number 3: brobpaper.Rnw:69-70
 ###################################################
 googol <- as.brob(10)^100
 

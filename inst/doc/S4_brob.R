@@ -1,4 +1,4 @@
-### R code from vignette source 'brob.Rnw'
+### R code from vignette source 'S4_brob.Rnw'
 
 ###################################################
 ### code chunk number 1: setClass
@@ -7,7 +7,7 @@
 
 
 ###################################################
-### code chunk number 2: brob.Rnw:120-129
+### code chunk number 2: S4_brob.Rnw:120-129
 ###################################################
 setClass("swift",
          representation = "VIRTUAL"
@@ -115,7 +115,7 @@ as.brob(1:10)
 
 
 ###################################################
-### code chunk number 14: brob.Rnw:366-371
+### code chunk number 14: S4_brob.Rnw:366-371
 ###################################################
 setAs("brob", "numeric", function(from){
   out <- exp(from@x)
@@ -185,7 +185,7 @@ as.brob(1:4)
 
 
 ###################################################
-### code chunk number 23: brob.Rnw:465-469
+### code chunk number 23: S4_brob.Rnw:465-469
 ###################################################
 setGeneric("getX",function(x){standardGeneric("getX")})
 setGeneric("getP",function(x){standardGeneric("getP")})
@@ -200,7 +200,7 @@ setMethod("getP","brob",function(x){x@positive})
 
 
 ###################################################
-### code chunk number 25: brob.Rnw:481-482
+### code chunk number 25: S4_brob.Rnw:481-482
 ###################################################
 setMethod("length","brob",function(x){length(x@x)})
 
@@ -212,7 +212,7 @@ setMethod("length","brob",function(x){length(x@x)})
 
 
 ###################################################
-### code chunk number 27: brob.Rnw:492-499
+### code chunk number 27: S4_brob.Rnw:492-499
 ###################################################
 setMethod("[", "brob",
           function(x, i, j,  drop){
@@ -230,7 +230,7 @@ setMethod("[", "brob",
 
 
 ###################################################
-### code chunk number 29: brob.Rnw:512-529
+### code chunk number 29: S4_brob.Rnw:512-529
 ###################################################
 setReplaceMethod("[",signature(x="brob"),
                  function(x,i,j,value){
@@ -268,7 +268,7 @@ setReplaceMethod("[",signature(x="brob"),
 
 
 ###################################################
-### code chunk number 32: brob.Rnw:568-569
+### code chunk number 32: S4_brob.Rnw:568-569
 ###################################################
 setGeneric(".cPair", function(x,y){standardGeneric(".cPair")})
 
@@ -280,7 +280,7 @@ setGeneric(".cPair", function(x,y){standardGeneric(".cPair")})
 
 
 ###################################################
-### code chunk number 34: brob.Rnw:579-583
+### code chunk number 34: S4_brob.Rnw:579-583
 ###################################################
 setMethod(".cPair", c("brob", "brob"), function(x,y){.Brob.cPair(x,y)})
 setMethod(".cPair", c("brob", "ANY"),  function(x,y){.Brob.cPair(x,as.brob(y))})
@@ -314,7 +314,7 @@ cbrob(a,a,b,a)
 
 
 ###################################################
-### code chunk number 38: brob.Rnw:633-636
+### code chunk number 38: S4_brob.Rnw:633-636
 ###################################################
 setMethod("sqrt","brob", function(x){
  brob(ifelse(x@positive,x@x/2, NaN),TRUE)
@@ -334,7 +334,7 @@ sqrt(brob(4))
 
 
 ###################################################
-### code chunk number 41: brob.Rnw:648-679
+### code chunk number 41: S4_brob.Rnw:648-679
 ###################################################
 setMethod("Math", "brob",
           function(x){
@@ -438,7 +438,7 @@ sin(brob(4))
 
 
 ###################################################
-### code chunk number 45: brob.Rnw:771-780
+### code chunk number 45: S4_brob.Rnw:771-780
 ###################################################
 setMethod("Arith",signature(e1 = "brob", e2="missing"),
           function(e1,e2){
@@ -531,7 +531,7 @@ setMethod("Arith", signature(e1 = "brob", e2="brob"), .Brob.arith)
 
 
 ###################################################
-### code chunk number 53: brob.Rnw:876-879
+### code chunk number 53: S4_brob.Rnw:876-879
 ###################################################
 setMethod("Compare", signature(e1="brob", e2="ANY" ), .Brob.compare)
 setMethod("Compare", signature(e1="ANY" , e2="brob"), .Brob.compare)
@@ -560,7 +560,7 @@ as.brob(10) <= as.brob(10)
 
 
 ###################################################
-### code chunk number 57: brob.Rnw:910-913
+### code chunk number 57: S4_brob.Rnw:910-913
 ###################################################
 setMethod("Logic",signature(e1="swift",e2="ANY"), .Brob.logic)
 setMethod("Logic",signature(e1="ANY",e2="swift"), .Brob.logic)
@@ -582,7 +582,7 @@ if(!isGeneric("log")){
 
 
 ###################################################
-### code chunk number 60: brob.Rnw:958-1009
+### code chunk number 60: S4_brob.Rnw:958-1009
 ###################################################
 if(!isGeneric("sum")){
 setGeneric("max", function(x, ..., na.rm = FALSE)
@@ -678,7 +678,7 @@ setGeneric("sum", function(x, ..., na.rm = FALSE)
 
 
 ###################################################
-### code chunk number 63: brob.Rnw:1055-1067
+### code chunk number 63: S4_brob.Rnw:1055-1067
 ###################################################
 setMethod("Summary", "brob",
           function(x, ..., na.rm=FALSE){
