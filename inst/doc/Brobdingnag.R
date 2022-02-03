@@ -1,4 +1,4 @@
-### R code from vignette source 'brobpaper.Rnw'
+### R code from vignette source 'Brobdingnag.Rnw'
 
 ###################################################
 ### code chunk number 1: googol_definition
@@ -7,13 +7,13 @@
 
 
 ###################################################
-### code chunk number 2: brobpaper.Rnw:67-68
+### code chunk number 2: Brobdingnag.Rnw:69-70
 ###################################################
 require(Brobdingnag)
 
 
 ###################################################
-### code chunk number 3: brobpaper.Rnw:69-70
+### code chunk number 3: Brobdingnag.Rnw:71-72
 ###################################################
 googol <- as.brob(10)^100
 

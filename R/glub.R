@@ -1,8 +1,3 @@
-setClass("glub",
-         representation = representation(real="brob",imag="brob"),
-         prototype      = list(real=new("brob"), imag=new("brob")),
-         contains       = "swift"
-         )
 
 ".Glub.valid" <- function(object){
   if(length(object@real) == length(object@imag)){
@@ -26,7 +21,8 @@ setAs("glub", "numeric", function(from){
 } )
   
 setMethod("as.numeric",signature(x="glub"),function(x){as(x,"numeric")})
-
+setMethod("is.infinite",signature(x="glub"),function(x){is.infinite(Re(x)) | is.infinite(Im(x))})
+setMethod("is.finite",signature(x="glub"),function(x){is.finite(Re(x)) & is.finite(Im(x))})
 
 "glub" <- function(real=double(), imag=double()){
   if(missing(imag)){

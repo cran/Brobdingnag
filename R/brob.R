@@ -1,12 +1,3 @@
-setClass("swift",
-         representation = "VIRTUAL"
-         )
-
-setClass("brob",
-         representation = representation(x="numeric",positive="logical"),
-         prototype      = list(x=numeric(),positive=logical()),
-         contains       = "swift"
-         )
 
 ".Brob.valid" <- function(object){
   len <- length(object@positive)
@@ -41,8 +32,10 @@ setValidity("brob", .Brob.valid)
   } else if(is.glub(x)){
     warning("imaginary parts discarded")
     return(Re(x))
+  } else if(is.brobmat(x)){
+      return(brobmat_to_brob(x))
   } else {
-    return(brob(log(abs(x)), x>=0))
+    return(brob(log(abs(c(x))), c(x)>=0))
   }
 }
 
@@ -77,6 +70,9 @@ setGeneric("getP",function(x){standardGeneric("getP")})
 setMethod("getX","brob",function(x){x@x})
 setMethod("getP","brob",function(x){x@positive})
 setMethod("length","brob",function(x){length(x@x)})
+
+setMethod("is.infinite","brob",function(x){x@x == +Inf})
+setMethod("is.finite"  ,"brob",function(x){x@x != +Inf})
 
 setGeneric("sign<-",function(x,value){standardGeneric("sign<-")})
 setMethod("sign<-","brob",function(x,value){
@@ -371,7 +367,7 @@ setGeneric("sum", function(x, ..., na.rm = FALSE)
 ".Brob.prod" <- function(x){
   p <- x@positive
   val <- x@x
-  return(brob(sum(val),(sum(p)%%2)==0))
+  return(brob(sum(val),(sum(!p)%%2)==0))
 }
 
 ".Brob.sum" <- function(x){
