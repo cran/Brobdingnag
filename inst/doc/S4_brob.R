@@ -7,7 +7,7 @@
 
 
 ###################################################
-### code chunk number 2: S4_brob.Rnw:122-131
+### code chunk number 2: S4_brob.Rnw:125-134
 ###################################################
 setClass("swift",
          representation = "VIRTUAL"
@@ -115,7 +115,7 @@ as.brob(1:10)
 
 
 ###################################################
-### code chunk number 14: S4_brob.Rnw:368-373
+### code chunk number 14: S4_brob.Rnw:363-368
 ###################################################
 setAs("brob", "numeric", function(from){
   out <- exp(from@x)
@@ -185,7 +185,7 @@ as.brob(1:4)
 
 
 ###################################################
-### code chunk number 23: S4_brob.Rnw:467-471
+### code chunk number 23: S4_brob.Rnw:462-466
 ###################################################
 setGeneric("getX",function(x){standardGeneric("getX")})
 setGeneric("getP",function(x){standardGeneric("getP")})
@@ -200,7 +200,7 @@ setMethod("getP","brob",function(x){x@positive})
 
 
 ###################################################
-### code chunk number 25: S4_brob.Rnw:483-484
+### code chunk number 25: S4_brob.Rnw:478-479
 ###################################################
 setMethod("length","brob",function(x){length(x@x)})
 
@@ -212,7 +212,7 @@ setMethod("length","brob",function(x){length(x@x)})
 
 
 ###################################################
-### code chunk number 27: S4_brob.Rnw:494-501
+### code chunk number 27: S4_brob.Rnw:489-496
 ###################################################
 setMethod("[", "brob",
           function(x, i, j,  drop){
@@ -230,7 +230,7 @@ setMethod("[", "brob",
 
 
 ###################################################
-### code chunk number 29: S4_brob.Rnw:514-531
+### code chunk number 29: S4_brob.Rnw:509-526
 ###################################################
 setReplaceMethod("[",signature(x="brob"),
                  function(x,i,j,value){
@@ -268,7 +268,7 @@ setReplaceMethod("[",signature(x="brob"),
 
 
 ###################################################
-### code chunk number 32: S4_brob.Rnw:570-571
+### code chunk number 32: S4_brob.Rnw:565-566
 ###################################################
 setGeneric(".cPair", function(x,y){standardGeneric(".cPair")})
 
@@ -280,7 +280,7 @@ setGeneric(".cPair", function(x,y){standardGeneric(".cPair")})
 
 
 ###################################################
-### code chunk number 34: S4_brob.Rnw:581-585
+### code chunk number 34: S4_brob.Rnw:576-580
 ###################################################
 setMethod(".cPair", c("brob", "brob"), function(x,y){.Brob.cPair(x,y)})
 setMethod(".cPair", c("brob", "ANY"),  function(x,y){.Brob.cPair(x,as.brob(y))})
@@ -314,7 +314,7 @@ cbrob(a,a,b,a)
 
 
 ###################################################
-### code chunk number 38: S4_brob.Rnw:635-638
+### code chunk number 38: S4_brob.Rnw:630-633
 ###################################################
 setMethod("sqrt","brob", function(x){
  brob(ifelse(x@positive,x@x/2, NaN),TRUE)
@@ -334,7 +334,7 @@ sqrt(brob(4))
 
 
 ###################################################
-### code chunk number 41: S4_brob.Rnw:650-681
+### code chunk number 41: S4_brob.Rnw:645-676
 ###################################################
 setMethod("Math", "brob",
           function(x){
@@ -381,7 +381,7 @@ sin(brob(4))
 .Brob.negative <- function(e1){
   brob(e1@x,!e1@positive)
 }
-.Brob.ds <- function(e1,e2){   # "ds" == "different signs"
+.Brob.ds <- function(e1,e2){
   xor(e1@positive,e2@positive)
 }
 
@@ -400,12 +400,11 @@ sin(brob(4))
   out.pos <- p1
   
   ds <- .Brob.ds(e1,e2)
-  ss <- !ds                             #ss == "Same Sign"
+  ss <- !ds 
 
   out.x[ss] <- pmax(x1[ss],x2[ss]) + log1p(+exp(-abs(x1[ss]-x2[ss])))
   out.x[ds] <- pmax(x1[ds],x2[ds]) + log1p(-exp(-abs(x1[ds]-x2[ds])))
 
-  # Now special dispensation for 0+0:
   out.x[ (x1 == -Inf) & (x2 == -Inf)] <- -Inf
   out.pos <- p1
   out.pos[ds] <- xor((x1[ds] > x2[ds]) , (!p1[ds]) )
@@ -420,10 +419,10 @@ sin(brob(4))
 
 .Brob.power <- function(e1,e2){
   stopifnot(is.brob(e1) | is.brob(e2))
-  if(is.brob(e2)){ # e2 a brob => answer a brob (ignore signs)
+  if(is.brob(e2)){ 
     return(brob(log(e1) * brob(e2@x), TRUE))
-  } else {  #e2 a non-brob (try to account for signs)
-    s <- as.integer(2*e1@positive-1) #s = +/-1
+  } else { 
+    s <- as.integer(2*e1@positive-1) 
     return(brob(e1@x*as.brob(e2),  (s^as.numeric(e2))>0))
   }
 }
@@ -438,7 +437,7 @@ sin(brob(4))
 
 
 ###################################################
-### code chunk number 45: S4_brob.Rnw:773-782
+### code chunk number 45: S4_brob.Rnw:767-776
 ###################################################
 setMethod("Arith",signature(e1 = "brob", e2="missing"),
           function(e1,e2){
@@ -497,7 +496,7 @@ setMethod("Arith", signature(e1 = "brob", e2="brob"), .Brob.arith)
   jj.p <- rbind(e1@positive,e2@positive)
 
   ds <- .Brob.ds(e1,e2)
-  ss <- !ds                             #ss == "Same Sign"
+  ss <- !ds 
   greater <- logical(length(ss))
   
   greater[ds] <- jj.p[1,ds]
@@ -531,7 +530,7 @@ setMethod("Arith", signature(e1 = "brob", e2="brob"), .Brob.arith)
 
 
 ###################################################
-### code chunk number 53: S4_brob.Rnw:878-881
+### code chunk number 53: S4_brob.Rnw:872-875
 ###################################################
 setMethod("Compare", signature(e1="brob", e2="ANY" ), .Brob.compare)
 setMethod("Compare", signature(e1="ANY" , e2="brob"), .Brob.compare)
@@ -560,7 +559,7 @@ as.brob(10) <= as.brob(10)
 
 
 ###################################################
-### code chunk number 57: S4_brob.Rnw:912-915
+### code chunk number 57: S4_brob.Rnw:906-909
 ###################################################
 setMethod("Logic",signature(e1="swift",e2="ANY"), .Brob.logic)
 setMethod("Logic",signature(e1="ANY",e2="swift"), .Brob.logic)
@@ -582,7 +581,7 @@ if(!isGeneric("log")){
 
 
 ###################################################
-### code chunk number 60: S4_brob.Rnw:960-1011
+### code chunk number 60: S4_brob.Rnw:954-1005
 ###################################################
 if(!isGeneric("sum")){
 setGeneric("max", function(x, ..., na.rm = FALSE)
@@ -646,7 +645,6 @@ setGeneric("sum", function(x, ..., na.rm = FALSE)
   if(any(p)){
     return(brob(max(val[p])))
   } else {
-    # all negative
     return(brob(min(val),FALSE))
   }
 }
@@ -678,7 +676,7 @@ setGeneric("sum", function(x, ..., na.rm = FALSE)
 
 
 ###################################################
-### code chunk number 63: S4_brob.Rnw:1057-1069
+### code chunk number 63: S4_brob.Rnw:1050-1062
 ###################################################
 setMethod("Summary", "brob",
           function(x, ..., na.rm=FALSE){
